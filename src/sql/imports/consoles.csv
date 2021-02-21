@@ -1,0 +1,32 @@
+console,full_name,year_released,global_sales,maker,console_type
+Wii,Wii,2006,101.63,Nintendo,home console
+NES,Nintendo Entertainment System,1985,61.91,Nintendo,home console
+GB,GameBoy,1989,118.69,Nintendo,handheld
+DS,Nintendo DS,2004,154.02,Nintendo,handheld
+X360,Xbox 360,2005,84,MicroSoft,home console
+PS3,Playstation 3,2006,87.4,Sony,home console
+PS2,Playstation 2,2000,155,Sony,home console
+SNES,Super Nintendo Enterntainment System,1991,49.1,Nintendo,home console
+GBA,GameBoy Advance,2001,81.51,Nintendo,handheld
+PS4,Playstation 4,2013,114.9,Sony,home console
+3DS,Nintendo 3DS,2011,75.94,Nintendo,handheld
+N64,Nintendo 64,1996,32.93,Nintendo,home console
+PS,Playstation,1994,102.49,Sony,home console
+XB,Xbox,2001,24,MicroSoft,home console
+PC,PC,1958,,PC,home console
+2600,Atari 2600,1977,30,Atari,home console
+PSP,Playstation Portable,2004,82,Sony,handheld
+XOne,Xbox One,2013,51,MicroSoft,home console
+WiiU,Wii U,2012,13.56,Nintendo,home console
+GC,Gamecube,2001,21.74,Nintendo,home console
+GEN,Sega Genesis,1988,30.75,Sega,home console
+DC,Sega Dreamcast,1998,9.13,Sega,home console
+PSV,Playstation Vita,2011,15,Sony,handheld
+SAT,Sega Saturn,1994,9.26,Sega,home console
+SCD,Sega CD,1991,2.24,Sega,home console
+WS,Wonder Swan,2003,3.5,Bandai,handheld
+NG,Neo Geo,1990,1,SNK,home console
+TG16,TurboGrafx-16,1989,10,NEC,home console
+3DO,3DO Interactive Multiplayer,1993,2,3DO,home console
+GG,Game Gear,1990,10.62,Sega,handheld
+PCFX,PC-FX,1994,0.4,NEC,home console
