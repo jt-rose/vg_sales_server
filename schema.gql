@@ -16,18 +16,27 @@ type CONSOLE_MAKERS {
   maker: String!
 }
 
+type CrossPlatformSales {
+  eu_sales_crossplatform: Float!
+  global_sales_crossplatform: Float!
+  jp_sales_crossplatform: Float!
+  na_sales_crossplatform: Float!
+  other_sales_crossplatform: Float!
+  title: String!
+}
+
 type GAMES {
-  EU_players: Float!
-  JP_players: Float!
-  NA_players: Float!
+  EU_sales: Float!
+  JP_sales: Float!
+  NA_sales: Float!
   console: String!
   critic_count: Int!
   critic_score: Int!
   developer: String!
   genre: String!
-  global_players: Float!
+  global_sales: Float!
   id: Int!
-  other_players: Float!
+  other_sales: Float!
   publisher: String!
   rating: String!
   title: String!
@@ -42,4 +51,6 @@ type Query {
   consoleMakers: [CONSOLE_MAKERS!]!
   consoles: [CONSOLES!]!
   games: [GAMES!]!
+  salesByCrossPlatformTitles: [CrossPlatformSales!]!
+  salesByGames: [GAMES!]!
 }

@@ -38,19 +38,19 @@ export class GAMES {
 
   // millions
   @Field()
-  NA_players!: number
+  NA_sales!: number
 
   @Field()
-  EU_players!: number
+  EU_sales!: number
 
   @Field()
-  JP_players!: number
+  JP_sales!: number
 
   @Field()
-  other_players!: number
+  other_sales!: number
 
   @Field()
-  global_players!: number
+  global_sales!: number
 
   @Field(() => Int)
   critic_score: number
