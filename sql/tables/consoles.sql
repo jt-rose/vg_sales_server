@@ -1,4 +1,4 @@
-CREATE TYPE HOME_OR_HANDHELD AS ENUM ('home console', 'handheld');
+CREATE TYPE HOME_OR_HANDHELD AS ENUM ('home', 'handheld');
 CREATE TABLE consoles (
     console VARCHAR(255) CONSTRAINT console_key PRIMARY KEY,
     full_name VARCHAR(255) NOT NULL,
