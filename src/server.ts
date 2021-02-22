@@ -13,6 +13,8 @@ const main = async () => {
     schema: await buildSchema({
       resolvers: [Games, Consoles, ConsoleMakers],
       validate: false,
+      // automatically create `schema.gql` file with schema definition in project's working directory
+      emitSchemaFile: true,
     }),
     // plugins: [apolloLogger],
     // context
