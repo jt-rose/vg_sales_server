@@ -67,3 +67,4 @@ COPY games (
     unique_by_year
 )
 FROM 'C:\Users\jtr21\Desktop\WebDev\sites\vg_sales\server\src\sql\imports\games.csv' WITH (FORMAT CSV, HEADER);
+CREATE INDEX title_idx ON games (title);
