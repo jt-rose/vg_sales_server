@@ -16,6 +16,15 @@ type CONSOLE_MAKERS {
   maker: String!
 }
 
+type ConsoleGameSales {
+  console: String!
+  eu_sales: Float!
+  global_sales: Float!
+  jp_sales: Float!
+  na_sales: Float!
+  other_sales: Float!
+}
+
 type CrossPlatformSales {
   eu_sales: Float!
   global_sales: Float!
@@ -69,6 +78,7 @@ type Query {
   consoleMakers: [CONSOLE_MAKERS!]!
   consoles: [CONSOLES!]!
   games: [GAMES!]!
+  salesByConsole: [ConsoleGameSales!]!
   salesByCrossPlatformTitles: [CrossPlatformSales!]!
   salesByGenre: [GenreSales!]!
   salesByPublisher: [PublisherSales!]!

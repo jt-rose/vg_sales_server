@@ -41,6 +41,12 @@ class PublisherSales extends CombinedSales {
   publisher!: string
 }
 
+@ObjectType()
+class ConsoleGameSales extends CombinedSales {
+  @Field()
+  console!: string
+}
+
 @Resolver()
 export class Games {
   @Query(() => [GAMES])
@@ -135,4 +141,23 @@ LIMIT 10;
 
     return res.rows
   }
+
+  // this is for games sold per console, not console sales themselves
+  @Query(() => [ConsoleGameSales])
+  async salesByConsole() {
+    const res = await pool.query(sql`
+        SELECT sum(global_sales) AS global_sales,
+    sum(na_sales) AS na_sales,
+    sum(eu_sales) AS eu_sales,
+    sum(jp_sales) AS jp_sales,
+    sum(other_sales) AS other_sales,
+    console
+FROM games
+GROUP BY console
+ORDER BY global_sales DESC;
+      `)
+
+    return res.rows
+  }
+  // compare console sales to game sales
 }
