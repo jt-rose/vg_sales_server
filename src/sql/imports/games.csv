@@ -1,4 +1,4 @@
-id,Name,console,Year_of_Release,Genre,Publisher,NA_players,EU_players,JP_players,Other_players,Global_players,Critic_Score,Critic_Count,User_Score,User_Count,Developer,Rating,unique_by_name,unique_by_year
+id,title,console,year_of_release,genre,publisher,na_sales,eu_sales,jp_sales,other_sales,global_sales,critic_score,critic_count,user_score,user_count,developer,rating,unique_by_name,unique_by_year
 1,Asteroids,2600,1980,Shooter,Atari,4,0.26,0,0.05,4.31,,,,,,,asteroids-1980-2600-1,1980-asteroids-2600-1
 2,Boxing,2600,1980,Fighting,Activision,0.72,0.04,0,0.01,0.77,,,,,,,boxing-1980-2600-2,1980-boxing-2600-2
 3,Bridge,2600,1980,Misc,Activision,0.25,0.02,0,0,0.27,,,,,,,bridge-1980-2600-3,1980-bridge-2600-3
