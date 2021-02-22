@@ -47,11 +47,21 @@ type GAMES {
   year_of_release: Int!
 }
 
+type GenreSales {
+  eu_sales: Float!
+  genre: String!
+  global_sales: Float!
+  jp_sales: Float!
+  na_sales: Float!
+  other_sales: Float!
+}
+
 type Query {
   consoleMakers: [CONSOLE_MAKERS!]!
   consoles: [CONSOLES!]!
   games: [GAMES!]!
   salesByCrossPlatformTitles: [CrossPlatformSales!]!
+  salesByGenre: [GenreSales!]!
   salesByTitles: [GAMES!]!
   salesByYear: [YearSales!]!
 }

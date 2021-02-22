@@ -6,27 +6,33 @@ import { sql } from 'slonik'
 @ObjectType()
 class CombinedSales {
   @Field(() => Float)
-  global_sales: number
+  global_sales!: number
   @Field(() => Float)
-  na_sales: number
+  na_sales!: number
   @Field(() => Float)
-  eu_sales: number
+  eu_sales!: number
   @Field(() => Float)
-  jp_sales: number
+  jp_sales!: number
   @Field(() => Float)
-  other_sales: number
+  other_sales!: number
 }
 
 @ObjectType()
 class CrossPlatformSales extends CombinedSales {
   @Field()
-  title: string
+  title!: string
 }
 
 @ObjectType()
 class YearSales extends CombinedSales {
   @Field(() => Int)
-  year: number
+  year!: number
+}
+
+@ObjectType()
+class GenreSales extends CombinedSales {
+  @Field()
+  genre!: string
 }
 
 @Resolver()
@@ -71,7 +77,22 @@ LIMIT 10;
     return res.rows
   }
 
-  // genre
+  @Query(() => [GenreSales])
+  async salesByGenre() {
+    const res = await pool.query(sql`
+        SELECT sum(global_sales) as global_sales,
+    sum(na_sales) as na_sales,
+    sum(eu_sales) as eu_sales,
+    sum(jp_sales) as jp_sales,
+    sum(other_sales) as other_sales,
+    genre
+FROM games
+GROUP BY genre
+ORDER BY global_sales DESC;
+      `)
+
+    return res.rows
+  }
 
   @Query(() => [YearSales])
   async salesByYear() {
