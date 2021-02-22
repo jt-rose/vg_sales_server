@@ -17,11 +17,11 @@ type CONSOLE_MAKERS {
 }
 
 type CrossPlatformSales {
-  eu_sales_crossplatform: Float!
-  global_sales_crossplatform: Float!
-  jp_sales_crossplatform: Float!
-  na_sales_crossplatform: Float!
-  other_sales_crossplatform: Float!
+  eu_sales: Float!
+  global_sales: Float!
+  jp_sales: Float!
+  na_sales: Float!
+  other_sales: Float!
   title: String!
 }
 
@@ -52,5 +52,15 @@ type Query {
   consoles: [CONSOLES!]!
   games: [GAMES!]!
   salesByCrossPlatformTitles: [CrossPlatformSales!]!
-  salesByGames: [GAMES!]!
+  salesByTitles: [GAMES!]!
+  salesByYear: [YearSales!]!
+}
+
+type YearSales {
+  eu_sales: Float!
+  global_sales: Float!
+  jp_sales: Float!
+  na_sales: Float!
+  other_sales: Float!
+  year: Int!
 }
