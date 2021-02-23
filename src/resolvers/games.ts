@@ -47,6 +47,12 @@ class ConsoleGameSales extends CombinedSales {
   console!: string
 }
 
+@ObjectType()
+class RatingSales extends CombinedSales {
+  @Field({ nullable: true })
+  rating: string
+}
+
 @Resolver()
 export class Games {
   @Query(() => [GAMES])
@@ -160,4 +166,21 @@ ORDER BY global_sales DESC;
     return res.rows
   }
   // compare console sales to game sales
+
+  @Query(() => [RatingSales])
+  async salesByRating() {
+    const res = await pool.query(sql`
+        SELECT sum(global_sales) AS global_sales,
+    sum(na_sales) AS na_sales,
+    sum(eu_sales) AS eu_sales,
+    sum(jp_sales) AS jp_sales,
+    sum(other_sales) AS other_sales,
+    rating
+FROM games
+GROUP BY rating
+ORDER BY global_sales DESC;
+      `)
+
+    return res.rows
+  }
 }

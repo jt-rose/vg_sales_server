@@ -82,8 +82,18 @@ type Query {
   salesByCrossPlatformTitles: [CrossPlatformSales!]!
   salesByGenre: [GenreSales!]!
   salesByPublisher: [PublisherSales!]!
+  salesByRating: [RatingSales!]!
   salesByTitles: [GAMES!]!
   salesByYear: [YearSales!]!
+}
+
+type RatingSales {
+  eu_sales: Float!
+  global_sales: Float!
+  jp_sales: Float!
+  na_sales: Float!
+  other_sales: Float!
+  rating: String
 }
 
 type YearSales {
