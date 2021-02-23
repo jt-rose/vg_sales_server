@@ -78,6 +78,8 @@ type Query {
   consoleMakers: [CONSOLE_MAKERS!]!
   consoles: [CONSOLES!]!
   games: [GAMES!]!
+  highestCriticScores: [GAMES!]!
+  highestUserScores: [GAMES!]!
   salesByConsole: [ConsoleGameSales!]!
   salesByCrossPlatformTitles: [CrossPlatformSales!]!
   salesByGenre: [GenreSales!]!

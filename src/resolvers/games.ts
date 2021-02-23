@@ -183,4 +183,30 @@ ORDER BY global_sales DESC;
 
     return res.rows
   }
+
+  @Query(() => [GAMES])
+  async highestCriticScores() {
+    const res = await pool.query(sql`
+        select *
+from games
+where critic_score is not null
+order by critic_score DESC
+limit 10;
+      `)
+
+    return res.rows
+  }
+
+  @Query(() => [GAMES])
+  async highestUserScores() {
+    const res = await pool.query(sql`
+        select *
+from games
+where user_score is not null
+order by user_score DESC
+limit 10;
+      `)
+
+    return res.rows
+  }
 }
