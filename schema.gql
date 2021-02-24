@@ -65,9 +65,24 @@ type GenreSales {
   other_sales: Float!
 }
 
+type PaginatedCrossPlatformSales {
+  hasMore: Boolean!
+  rows: [CrossPlatformSales!]!
+}
+
+type PaginatedPublisherSales {
+  hasMore: Boolean!
+  rows: [PublisherSales!]!
+}
+
 type PaginatedRes {
   hasMore: Boolean!
   rows: [GAMES!]!
+}
+
+type PaginatedYearSales {
+  hasMore: Boolean!
+  rows: [YearSales!]!
 }
 
 type PublisherSales {
@@ -86,12 +101,12 @@ type Query {
   highestCriticScores(limit: Int!): PaginatedRes!
   highestUserScores(limit: Int!): PaginatedRes!
   salesByConsole: [ConsoleGameSales!]!
-  salesByCrossPlatformTitles: [CrossPlatformSales!]!
+  salesByCrossPlatformTitles(limit: Int!): PaginatedCrossPlatformSales!
   salesByGenre: [GenreSales!]!
-  salesByPublisher: [PublisherSales!]!
+  salesByPublisher(limit: Int!): PaginatedPublisherSales!
   salesByRating: [RatingSales!]!
-  salesByTitles(limit: Int!): [GAMES!]!
-  salesByYear: [YearSales!]!
+  salesByTitles(limit: Int!): PaginatedRes!
+  salesByYear(limit: Int!): PaginatedYearSales!
 }
 
 type RatingSales {
