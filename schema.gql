@@ -65,6 +65,11 @@ type GenreSales {
   other_sales: Float!
 }
 
+type PaginatedRes {
+  hasMore: Boolean!
+  rows: [GAMES!]!
+}
+
 type PublisherSales {
   eu_sales: Float!
   global_sales: Float!
@@ -77,15 +82,15 @@ type PublisherSales {
 type Query {
   consoleMakers: [CONSOLE_MAKERS!]!
   consoles: [CONSOLES!]!
-  games: [GAMES!]!
-  highestCriticScores: [GAMES!]!
-  highestUserScores: [GAMES!]!
+  games(limit: Int!): PaginatedRes!
+  highestCriticScores(limit: Int!): PaginatedRes!
+  highestUserScores(limit: Int!): PaginatedRes!
   salesByConsole: [ConsoleGameSales!]!
   salesByCrossPlatformTitles: [CrossPlatformSales!]!
   salesByGenre: [GenreSales!]!
   salesByPublisher: [PublisherSales!]!
   salesByRating: [RatingSales!]!
-  salesByTitles: [GAMES!]!
+  salesByTitles(limit: Int!): [GAMES!]!
   salesByYear: [YearSales!]!
 }
 

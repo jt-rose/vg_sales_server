@@ -1,7 +1,7 @@
 import 'reflect-metadata'
 import express from 'express'
 import { ApolloServer } from 'apollo-server-express'
-import { Games } from './resolvers/games'
+import { Games } from './resolvers/Games'
 import { Consoles } from './resolvers/Consoles'
 import { ConsoleMakers } from './resolvers/ConsoleMakers'
 import { buildSchema } from 'type-graphql'

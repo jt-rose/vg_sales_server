@@ -1,6 +1,6 @@
 import { Resolver, Query } from 'type-graphql'
 import { CONSOLES } from '../entities/CONSOLES'
-import { pool } from '../utils/pool'
+import { pool } from '../utils/utils'
 import { sql } from 'slonik'
 
 @Resolver()

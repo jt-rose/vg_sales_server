@@ -1,7 +1,22 @@
-import { Resolver, Query, ObjectType, Field, Float, Int } from 'type-graphql'
+import {
+  highestCriticScoresQuery,
+  highestUserScoresQuery,
+} from './../slonik/query'
+import 'reflect-metadata'
+import { getRealLimit } from './../utils/utils'
+import {
+  Resolver,
+  Query,
+  ObjectType,
+  Field,
+  Float,
+  Int,
+  Arg,
+} from 'type-graphql'
 import { GAMES } from '../entities/GAMES'
-import { pool } from '../utils/pool'
+import { pool } from '../utils/utils'
 import { sql } from 'slonik'
+import { gamesQuery, salesByConsoleQuery } from '../slonik/query'
 
 @ObjectType()
 class CombinedSales {
@@ -53,28 +68,38 @@ class RatingSales extends CombinedSales {
   rating: string
 }
 
+@ObjectType()
+class PaginatedRes {
+  @Field(() => [GAMES])
+  rows: GAMES[]
+  @Field()
+  hasMore: boolean
+}
+
 @Resolver()
 export class Games {
-  @Query(() => [GAMES])
-  async games() {
-    const res = await pool.query(sql`
-        SELECT * FROM games
-        LIMIT 10;
-        `)
-    return res.rows
+  @Query(() => PaginatedRes)
+  async games(@Arg('limit', () => Int) limit: number) {
+    return gamesQuery(limit)
   }
 
   // update filter, cursor, and limit args later
   // not combining sales of a single title across consoles/ PC - add later
   // set pool.query to function to add strict types for return
   @Query(() => [GAMES])
-  async salesByTitles() {
+  async salesByTitles(@Arg('limit', () => Int) limit: number) {
+    const { realLimit, realLimitPlusOne } = getRealLimit(limit)
     const res = await pool.query(sql`
         SELECT * FROM games
         ORDER BY global_sales DESC
-        LIMIT 10;
+        LIMIT ${realLimitPlusOne};
     `)
-    return res.rows
+    const hasMore = res.rows.length === realLimitPlusOne
+
+    return {
+      rows: res.rows.slice(0, realLimit),
+      hasMore,
+    }
   }
 
   @Query(() => [CrossPlatformSales])
@@ -151,19 +176,7 @@ LIMIT 10;
   // this is for games sold per console, not console sales themselves
   @Query(() => [ConsoleGameSales])
   async salesByConsole() {
-    const res = await pool.query(sql`
-        SELECT sum(global_sales) AS global_sales,
-    sum(na_sales) AS na_sales,
-    sum(eu_sales) AS eu_sales,
-    sum(jp_sales) AS jp_sales,
-    sum(other_sales) AS other_sales,
-    console
-FROM games
-GROUP BY console
-ORDER BY global_sales DESC;
-      `)
-
-    return res.rows
+    return salesByConsoleQuery()
   }
   // compare console sales to game sales
 
@@ -184,29 +197,13 @@ ORDER BY global_sales DESC;
     return res.rows
   }
 
-  @Query(() => [GAMES])
-  async highestCriticScores() {
-    const res = await pool.query(sql`
-        select *
-from games
-where critic_score is not null
-order by critic_score DESC
-limit 10;
-      `)
-
-    return res.rows
+  @Query(() => PaginatedRes)
+  async highestCriticScores(@Arg('limit', () => Int) limit: number) {
+    return highestCriticScoresQuery(limit)
   }
 
-  @Query(() => [GAMES])
-  async highestUserScores() {
-    const res = await pool.query(sql`
-        select *
-from games
-where user_score is not null
-order by user_score DESC
-limit 10;
-      `)
-
-    return res.rows
+  @Query(() => PaginatedRes)
+  async highestUserScores(@Arg('limit', () => Int) limit: number) {
+    return highestUserScoresQuery(limit)
   }
 }
