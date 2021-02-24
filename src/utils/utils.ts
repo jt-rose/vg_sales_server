@@ -17,9 +17,3 @@ export const getRealLimit = (limit: number) => {
     realLimitPlusOne,
   }
 }
-/*
-type SlonikCallBack = QueryResultType<Record<string, PrimitiveValueExpressionType>>
-export const withPagination = async(limit: number, callback: SlonikCallBack) => {
-    const { realLimit, realLimitPlusOne } = getRealLimit(limit)
-    const res = await callback()
-}*/

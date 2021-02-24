@@ -70,14 +70,14 @@ type PaginatedCrossPlatformSales {
   rows: [CrossPlatformSales!]!
 }
 
+type PaginatedGames {
+  hasMore: Boolean!
+  rows: [GAMES!]!
+}
+
 type PaginatedPublisherSales {
   hasMore: Boolean!
   rows: [PublisherSales!]!
-}
-
-type PaginatedRes {
-  hasMore: Boolean!
-  rows: [GAMES!]!
 }
 
 type PaginatedYearSales {
@@ -97,15 +97,15 @@ type PublisherSales {
 type Query {
   consoleMakers: [CONSOLE_MAKERS!]!
   consoles: [CONSOLES!]!
-  games(limit: Int!): PaginatedRes!
-  highestCriticScores(limit: Int!): PaginatedRes!
-  highestUserScores(limit: Int!): PaginatedRes!
+  games(limit: Int!): PaginatedGames!
+  highestCriticScores(limit: Int!): PaginatedGames!
+  highestUserScores(limit: Int!): PaginatedGames!
   salesByConsole: [ConsoleGameSales!]!
   salesByCrossPlatformTitles(limit: Int!): PaginatedCrossPlatformSales!
   salesByGenre: [GenreSales!]!
   salesByPublisher(limit: Int!): PaginatedPublisherSales!
   salesByRating: [RatingSales!]!
-  salesByTitles(limit: Int!): PaginatedRes!
+  salesByTitles(limit: Int!): PaginatedGames!
   salesByYear(limit: Int!): PaginatedYearSales!
 }
 

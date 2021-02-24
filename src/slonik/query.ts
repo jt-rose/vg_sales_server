@@ -1,15 +1,11 @@
 import { getRealLimit, pool } from '../utils/utils'
 import { sql } from 'slonik'
 
-type SQLTag = ReturnType<typeof sql>
-type SQLTagCallback = (limit: number) => ReturnType<typeof sql>
-type PaginatedQuery = Promise<{
-  rows: unknown[] // update later
-  hasMore: boolean
-}>
-
 /* ---------------------------------- query --------------------------------- */
 
+type SQLTag = ReturnType<typeof sql>
+
+// simple query function to avoid some boilerplate
 const query = (sql: SQLTag) => async () => {
   const res = await pool.query(sql)
   return res.rows
@@ -51,15 +47,21 @@ GROUP BY rating
 ORDER BY global_sales DESC;
 `)
 
-/* ---------------------------- query with limit ---------------------------- */
+/* --------------------- query with limit for pagination -------------------- */
 
+type SQLTagCallback = (limit: number) => ReturnType<typeof sql>
+type PaginatedQuery = Promise<{
+  rows: unknown[] // update later
+  hasMore: boolean
+}>
+
+// wrap sql callback in pagination logic
 const queryWithLimit = (callBack: SQLTagCallback) => async (
   limit: number
 ): PaginatedQuery => {
   const { realLimit, realLimitPlusOne } = getRealLimit(limit)
   const res = await pool.query(callBack(realLimitPlusOne))
   const hasMore = res.rows.length === realLimitPlusOne
-  res.rows
 
   return {
     rows: res.rows.slice(0, realLimit),
@@ -67,6 +69,8 @@ const queryWithLimit = (callBack: SQLTagCallback) => async (
   }
 }
 
+// rlpo is short for realLimitPlusOne
+// not to be confused with the user-provided limit
 export const gamesQuery = queryWithLimit(
   (rlpo) => sql`
     SELECT * FROM games

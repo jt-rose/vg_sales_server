@@ -1,5 +1,5 @@
 import { Resolver, Query } from 'type-graphql'
-import { CONSOLE_MAKERS } from '../entities/CONSOLE_MAKERS'
+import { CONSOLE_MAKERS } from '../fields/CONSOLE_MAKERS'
 import { pool } from '../utils/utils'
 import { sql } from 'slonik'
 

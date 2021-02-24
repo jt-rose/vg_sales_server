@@ -9,112 +9,28 @@ import {
   salesByTitlesQuery,
   salesByYearQuery,
 } from './../slonik/query'
-
-import {
-  Resolver,
-  Query,
-  ObjectType,
-  Field,
-  Float,
-  Int,
-  Arg,
-} from 'type-graphql'
-import { GAMES } from '../entities/GAMES'
+import { Resolver, Query, Int, Arg } from 'type-graphql'
 import { gamesQuery, salesByConsoleQuery } from '../slonik/query'
-
-@ObjectType()
-class CombinedSales {
-  @Field(() => Float)
-  global_sales!: number
-  @Field(() => Float)
-  na_sales!: number
-  @Field(() => Float)
-  eu_sales!: number
-  @Field(() => Float)
-  jp_sales!: number
-  @Field(() => Float)
-  other_sales!: number
-}
-
-@ObjectType()
-class CrossPlatformSales extends CombinedSales {
-  @Field()
-  title!: string
-}
-
-@ObjectType()
-class PaginatedCrossPlatformSales {
-  @Field(() => [CrossPlatformSales])
-  rows: CrossPlatformSales[]
-  @Field()
-  hasMore: boolean
-}
-
-@ObjectType()
-class YearSales extends CombinedSales {
-  @Field(() => Int)
-  year!: number
-}
-
-@ObjectType()
-class PaginatedYearSales {
-  @Field(() => [YearSales])
-  rows: YearSales[]
-  @Field()
-  hasMore: boolean
-}
-
-@ObjectType()
-class GenreSales extends CombinedSales {
-  @Field()
-  genre!: string
-}
-
-@ObjectType()
-class PublisherSales extends CombinedSales {
-  @Field()
-  publisher!: string
-}
-
-@ObjectType()
-class PaginatedPublisherSales {
-  @Field(() => [PublisherSales])
-  rows: PublisherSales[]
-  @Field()
-  hasMore: boolean
-}
-
-@ObjectType()
-class ConsoleGameSales extends CombinedSales {
-  @Field()
-  console!: string
-}
-
-@ObjectType()
-class RatingSales extends CombinedSales {
-  @Field({ nullable: true })
-  rating: string
-}
-
-@ObjectType()
-class PaginatedRes {
-  @Field(() => [GAMES])
-  rows: GAMES[]
-  @Field()
-  hasMore: boolean
-}
+import {
+  PaginatedGames,
+  PaginatedCrossPlatformSales,
+  GenreSales,
+  PaginatedYearSales,
+  PaginatedPublisherSales,
+  ConsoleGameSales,
+  RatingSales,
+} from '../fields/RESPONSE'
 
 @Resolver()
 export class Games {
-  @Query(() => PaginatedRes)
+  @Query(() => PaginatedGames)
   async games(@Arg('limit', () => Int) limit: number) {
     return gamesQuery(limit)
   }
 
   // update filter, cursor, and limit args later
   // not combining sales of a single title across consoles/ PC - add later
-  // set pool.query to function to add strict types for return
-  @Query(() => PaginatedRes)
+  @Query(() => PaginatedGames)
   async salesByTitles(@Arg('limit', () => Int) limit: number) {
     return salesByTitlesQuery(limit)
   }
@@ -151,12 +67,12 @@ export class Games {
     return salesByRatingQuery()
   }
 
-  @Query(() => PaginatedRes)
+  @Query(() => PaginatedGames)
   async highestCriticScores(@Arg('limit', () => Int) limit: number) {
     return highestCriticScoresQuery(limit)
   }
 
-  @Query(() => PaginatedRes)
+  @Query(() => PaginatedGames)
   async highestUserScores(@Arg('limit', () => Int) limit: number) {
     return highestUserScoresQuery(limit)
   }
