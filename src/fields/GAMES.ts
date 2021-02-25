@@ -38,13 +38,13 @@ export class GAMES {
 
   // millions
   @Field()
-  NA_sales!: number
+  na_sales!: number
 
   @Field()
-  EU_sales!: number
+  eu_sales!: number
 
   @Field()
-  JP_sales!: number
+  jp_sales!: number
 
   @Field()
   other_sales!: number

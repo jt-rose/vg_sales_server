@@ -1,11 +1,17 @@
 import { createPool } from 'slonik'
 import dotenv from 'dotenv'
+import Knex from 'knex'
 
 dotenv.config()
 
-/* ----------------------------- create sql pool ---------------------------- */
+/* ------------------------- create sql connections ------------------------- */
 
 export const pool = createPool(process.env.DATABASE_URL as string)
+
+export const knex = Knex({
+  client: 'pg',
+  connection: process.env.DATABASE_URL as string,
+})
 
 /* ---------------------- get real limit for pagination --------------------- */
 

@@ -62,7 +62,7 @@ export class PaginatedCrossPlatformSales {
 @ObjectType()
 class YearSales extends CombinedSales {
   @Field(() => Int)
-  year!: number
+  year_of_release!: number
 }
 
 @ObjectType()

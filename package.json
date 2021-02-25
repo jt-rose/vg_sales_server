@@ -11,10 +11,12 @@
     "watch": "tsc -w"
   },
   "dependencies": {
+    "@types/knex": "^0.16.1",
     "apollo-server-express": "^2.21.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "graphql": "^15.5.0",
+    "knex": "^0.21.18",
     "reflect-metadata": "^0.1.13",
     "slonik": "^23.6.0",
     "type-graphql": "^1.1.1"

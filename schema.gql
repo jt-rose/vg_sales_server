@@ -35,16 +35,16 @@ type CrossPlatformSales {
 }
 
 type GAMES {
-  EU_sales: Float!
-  JP_sales: Float!
-  NA_sales: Float!
   console: String!
   critic_count: Int!
   critic_score: Int!
   developer: String!
+  eu_sales: Float!
   genre: String!
   global_sales: Float!
   id: Int!
+  jp_sales: Float!
+  na_sales: Float!
   other_sales: Float!
   publisher: String!
   rating: String!
@@ -124,5 +124,5 @@ type YearSales {
   jp_sales: Float!
   na_sales: Float!
   other_sales: Float!
-  year: Int!
+  year_of_release: Int!
 }
