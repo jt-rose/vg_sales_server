@@ -1,4 +1,27 @@
-import { getRealLimit, knex } from '../utils/utils'
+import dotenv from 'dotenv'
+import Knex from 'knex'
+
+dotenv.config()
+
+/* --------------------------- connect to database -------------------------- */
+
+export const knex = Knex({
+  client: 'pg',
+  connection: process.env.DATABASE_URL,
+})
+
+/* ---------------------- get real limit for pagination --------------------- */
+
+export const getRealLimit = (limit: number) => {
+  const realLimit = Math.min(50, limit)
+  const realLimitPlusOne = realLimit + 1
+  return {
+    realLimit,
+    realLimitPlusOne,
+  }
+}
+
+/* ------------------------ filter object for queries ----------------------- */
 
 /*
 interface QueryParamsFilter {
@@ -21,7 +44,8 @@ interface QueryParamsFilter {
   // series?
 }
 */
-/* ---------------------------------- query --------------------------------- */
+
+/* ----------------- query sales based on specific parameter ---------------- */
 
 export const querySalesBy = (groupByColumn: string) =>
   knex('games')
@@ -38,22 +62,31 @@ export const querySalesBy = (groupByColumn: string) =>
 
 /* --------------------- query with limit for pagination -------------------- */
 
-//type SQLTagCallback = (limit: number) => ReturnType<typeof sql>
+// result type of queryWithLimit function
 type PaginatedQuery = Promise<{
   rows: unknown[] // update later
   hasMore: boolean
 }>
 
+// config object provided to queryWithLimit
+// to determine which query function to use
 type QueryWithLimitConfig =
   | { groupByColumn: string }
   | { scoreType: 'critic_score' | 'user_score' }
   | { gamesQuery: true }
   | { titlesQuery: true }
-// wrap sql callback in pagination logic
+
+// query sales related to highest critic/ user scores
+const queryByScore = (scoreType: 'critic_score' | 'user_score') =>
+  knex('games').select().whereNotNull(scoreType).orderBy(scoreType, 'desc')
+
+// wrap sql query in pagination logic
 export const queryWithLimit = (queryType: QueryWithLimitConfig) => async (
   limit: number
 ): PaginatedQuery => {
   const { realLimit, realLimitPlusOne } = getRealLimit(limit)
+
+  // determine which type of query to run with pagination
   let res
   if ('groupByColumn' in queryType) {
     res = await querySalesBy(queryType.groupByColumn).limit(realLimitPlusOne)
@@ -68,14 +101,14 @@ export const queryWithLimit = (queryType: QueryWithLimitConfig) => async (
     res = await knex('games').select().limit(realLimitPlusOne)
   }
 
-  //res = await querySalesBy(groupByColumn).limit(realLimitPlusOne)
+  // determine if additional items are left to query
   const hasMore = res.length === realLimitPlusOne
 
+  // return paginated query object
   return {
     rows: res.slice(0, realLimit),
     hasMore,
   }
 }
 
-const queryByScore = (scoreType: 'critic_score' | 'user_score') =>
-  knex('games').select().whereNotNull(scoreType).orderBy(scoreType, 'desc')
+// need to add cursor/ offset logic

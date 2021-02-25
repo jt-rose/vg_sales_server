@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-import { querySalesBy, queryWithLimit } from './../slonik/query'
+import { querySalesBy, queryWithLimit } from '../utils/queries'
 import { Resolver, Query, Int, Arg } from 'type-graphql'
 import {
   PaginatedGames,
@@ -15,7 +15,6 @@ import {
 export class Games {
   @Query(() => PaginatedGames)
   async games(@Arg('limit', () => Int) limit: number) {
-    //return gamesQuery(limit)
     return queryWithLimit({ gamesQuery: true })(limit)
   }
 
@@ -23,7 +22,6 @@ export class Games {
   // not combining sales of a single title across consoles/ PC - add later
   @Query(() => PaginatedGames)
   async salesByTitles(@Arg('limit', () => Int) limit: number) {
-    //return salesByTitlesQuery(limit)
     return queryWithLimit({ titlesQuery: true })(limit)
   }
 
@@ -39,13 +37,11 @@ export class Games {
 
   @Query(() => PaginatedYearSales)
   async salesByYear(@Arg('limit', () => Int) limit: number) {
-    //return salesByYearQuery(limit)
     return queryWithLimit({ groupByColumn: 'year_of_release' })(limit)
   }
 
   @Query(() => PaginatedPublisherSales)
   async salesByPublisher(@Arg('limit', () => Int) limit: number) {
-    //return salesByPublisherQuery(limit)
     return queryWithLimit({ groupByColumn: 'publisher' })(limit)
   }
 
@@ -63,13 +59,11 @@ export class Games {
 
   @Query(() => PaginatedGames)
   async highestCriticScores(@Arg('limit', () => Int) limit: number) {
-    //return highestCriticScoresQuery(limit)
     return queryWithLimit({ scoreType: 'critic_score' })(limit)
   }
 
   @Query(() => PaginatedGames)
   async highestUserScores(@Arg('limit', () => Int) limit: number) {
-    //return highestUserScoresQuery(limit)
     return queryWithLimit({ scoreType: 'user_score' })(limit)
   }
 }

@@ -1,15 +1,11 @@
 import { Resolver, Query } from 'type-graphql'
 import { CONSOLE_MAKERS } from '../fields/CONSOLE_MAKERS'
-import { pool } from '../utils/utils'
-import { sql } from 'slonik'
+import { knex } from '../utils/queries'
 
 @Resolver()
 export class ConsoleMakers {
   @Query(() => [CONSOLE_MAKERS])
   async consoleMakers() {
-    const res = await pool.query(sql`
-        SELECT maker FROM console_makers;
-        `)
-    return res.rows
+    return knex('console_makers').select()
   }
 }
