@@ -111,4 +111,45 @@ export const queryWithLimit = (queryType: QueryWithLimitConfig) => async (
   }
 }
 
-// need to add cursor/ offset logic
+/* --------------- cursor-based pagination for dynamic queries -------------- */
+
+// MUST CHECK VALUES ON BACKEND BEFORE EXECUTING!!!
+// since user input from front end can shape column names,
+// this MUST be validated before execution
+
+// additionally, the cursor position stored on frontend
+// will need to invalidated when the query changes
+// since the row_number corresponds to a dynamic table
+
+export const querySalesByDynamicFilter = (options: {
+  cursorStart: number
+  cursorEnd: number
+  groupBy: string
+  orderBy: string
+}) =>
+  console.log(
+    knex
+      .raw(
+        `SELECT *
+FROM (
+        SELECT *,
+            ROW_NUMBER() OVER (
+                ORDER BY tempo.:orderBy: DESC
+            ) as row_n
+        FROM (
+                SELECT sum(global_sales) AS global_sales,
+                    sum(na_sales) AS na_sales,
+                    sum(eu_sales) AS eu_sales,
+                    sum(jp_sales) AS jp_sales,
+                    sum(other_sales) AS other_sales,
+                    :groupBy:
+                FROM games
+                GROUP BY :groupBy:
+                ORDER BY :orderBy: DESC
+            ) as tempo
+    ) as with_row_n
+where with_row_n.row_n between :cursorStart and :cursorEnd ;`,
+        options
+      )
+      .toString()
+  ) // need to add dynamic where clauses
