@@ -1,6 +1,7 @@
 import {
   consoleQuery,
   criticScoreQuery,
+  crossPlatformTitleQuery,
   eachTtitleVersionQuery,
   gamesListQuery,
   genreQuery,
@@ -20,7 +21,6 @@ import {
   ConsoleGameSales,
   RatingSales,
 } from '../fields/RESPONSE'
-import { crossPlatformTitleQuery } from '../utils/queries'
 
 @Resolver()
 export class Games {
@@ -34,7 +34,6 @@ export class Games {
       limit,
       cursor,
     })
-    //return queryWithLimit({ gamesQuery: true })(limit)
   }
 
   // update filter, cursor, and limit args later
@@ -49,7 +48,6 @@ export class Games {
       limit,
       cursor,
     })
-    //return queryWithLimit({ titlesQuery: true })(limit)
   }
 
   @Query(() => PaginatedCrossPlatformSales)
@@ -67,7 +65,6 @@ export class Games {
   @Query(() => [GenreSales])
   async salesByGenre() {
     return genreQuery({})
-    //return querySalesBy('genre')
   }
 
   @Query(() => PaginatedYearSales)
@@ -80,7 +77,6 @@ export class Games {
       limit,
       cursor,
     })
-    //return queryWithLimit({ groupByColumn: 'year_of_release' })(limit)
   }
 
   @Query(() => PaginatedPublisherSales)
@@ -93,21 +89,18 @@ export class Games {
       limit,
       cursor,
     })
-    //return queryWithLimit({ groupByColumn: 'publisher' })(limit)
   }
 
   // this is for games sold per console, not console sales themselves
   @Query(() => [ConsoleGameSales])
   async salesByConsole() {
     return consoleQuery({})
-    //return querySalesBy('console')
   }
   // compare console sales to game sales
 
   @Query(() => [RatingSales])
   async salesByRating() {
     return ratingQuery({})
-    //return querySalesBy('rating')
   }
 
   @Query(() => PaginatedGames)
@@ -120,7 +113,6 @@ export class Games {
       limit,
       cursor,
     })
-    //return queryWithLimit({ scoreType: 'critic_score' })(limit)
   }
 
   @Query(() => PaginatedGames)
@@ -133,6 +125,5 @@ export class Games {
       limit,
       cursor,
     })
-    //return queryWithLimit({ scoreType: 'user_score' })(limit)
   }
 }

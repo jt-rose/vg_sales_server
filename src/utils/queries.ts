@@ -10,17 +10,6 @@ export const knex = Knex({
   connection: process.env.DATABASE_URL,
 })
 
-/* ---------------------- get real limit for pagination --------------------- */
-
-export const getRealLimit = (limit: number) => {
-  const realLimit = Math.min(50, limit)
-  const realLimitPlusOne = realLimit + 1
-  return {
-    realLimit,
-    realLimitPlusOne,
-  }
-}
-
 /* ------------------------ filter object for queries ----------------------- */
 
 /*
@@ -50,9 +39,9 @@ interface SimpleOptions {
   console?: string
 }
 
-/* ----------------- query sales based on specific parameter ---------------- */
+/* ------------------------- pre-paginated queries -------------------------- */
 
-export const querySalesBy = (groupByColumn: string) => (where: SimpleOptions) =>
+const querySalesBy = (groupByColumn: string) => (where: SimpleOptions) =>
   knex('games')
     .select(groupByColumn)
     .sum({
@@ -66,154 +55,7 @@ export const querySalesBy = (groupByColumn: string) => (where: SimpleOptions) =>
     .groupBy(groupByColumn)
     .orderBy('global_sales', 'desc')
 
-/* --------------------- query with limit for pagination -------------------- */
-
-// result type of queryWithLimit function
-type PaginatedQuery = Promise<{
-  rows: unknown[] // update later
-  hasMore: boolean
-}>
-
-// config object provided to queryWithLimit
-// to determine which query function to use
-type QueryWithLimitConfig =
-  | { groupByColumn: string }
-  | { scoreType: 'critic_score' | 'user_score' }
-  | { gamesQuery: true }
-  | { titlesQuery: true }
-
-// query sales related to highest critic/ user scores
 const queryByScore = (scoreType: 'critic_score' | 'user_score') => (
-  where: SimpleOptions
-) =>
-  knex('games')
-    .select()
-    .where(where)
-    .whereNotNull(scoreType)
-    .orderBy(scoreType, 'desc')
-
-// wrap sql query in pagination logic
-export const queryWithLimit = (queryType: QueryWithLimitConfig) => async (
-  limit: number,
-  where: { console?: string } = {}
-): PaginatedQuery => {
-  const { realLimit, realLimitPlusOne } = getRealLimit(limit)
-
-  // determine which type of query to run with pagination
-  let res
-  if ('groupByColumn' in queryType) {
-    res = await querySalesBy(queryType.groupByColumn)(where).limit(
-      realLimitPlusOne
-    )
-  } else if ('scoreType' in queryType) {
-    res = await queryByScore(queryType.scoreType)(where).limit(realLimitPlusOne)
-  } else if ('titlesQuery' in queryType) {
-    res = await knex('games')
-      .select()
-      .where(where)
-      .orderBy('global_sales', 'desc')
-      .limit(realLimitPlusOne)
-  } else {
-    res = await knex('games').select().where(where).limit(realLimitPlusOne)
-  }
-
-  // determine if additional items are left to query
-  const hasMore = res.length === realLimitPlusOne
-
-  // return paginated query object
-  return {
-    rows: res.slice(0, realLimit),
-    hasMore,
-  }
-}
-
-/* --------------- cursor-based pagination for dynamic queries -------------- */
-
-// MUST CHECK VALUES ON BACKEND BEFORE EXECUTING!!!
-// since user input from front end can shape column names,
-// this MUST be validated before execution
-
-// additionally, the cursor position stored on frontend
-// will need to invalidated when the query changes
-// since the row_number corresponds to a dynamic table
-
-export const querySalesByDynamicFilter = (options: {
-  cursorStart: number
-  cursorEnd: number
-  groupBy: string
-  orderBy: string
-}) =>
-  console.log(
-    knex
-      .raw(
-        `SELECT *
-FROM (
-        SELECT *,
-            ROW_NUMBER() OVER (
-                ORDER BY tempo.:orderBy: DESC
-            ) as row_n
-        FROM (
-                SELECT sum(global_sales) AS global_sales,
-                    sum(na_sales) AS na_sales,
-                    sum(eu_sales) AS eu_sales,
-                    sum(jp_sales) AS jp_sales,
-                    sum(other_sales) AS other_sales,
-                    :groupBy:
-                FROM games
-                GROUP BY :groupBy:
-                ORDER BY :orderBy: DESC
-            ) as tempo
-    ) as with_row_n
-where with_row_n.row_n between :cursorStart and :cursorEnd ;`,
-        options
-      )
-      .toString()
-  ) // need to add dynamic where clauses
-
-// works, but need a cleaner refactor
-// test for byScore and other two
-// fit into pagination wrapper
-knex
-  .with(
-    'with_row_n',
-    knex
-      .with('tempo', querySalesBy('title')({ console: 'Wii' }))
-      .select(
-        knex.raw(
-          '*, ROW_NUMBER() OVER (ORDER BY tempo.?? DESC) AS row_n',
-          'global_sales'
-        )
-      )
-      .from('tempo')
-  )
-  .select()
-  .whereRaw('with_row_n.row_n between 1 and 10')
-  .from('with_row_n')
-  .toString()
-
-//const withCursorPagination = () =>
-
-// 1. base search with where
-// 2. add dynamic row_number cursor pagination => HOF
-// 3. wrap in real limit plus one/ has more logic => HOF
-
-export const querySalesBy2 = (groupByColumn: string) => (
-  where: SimpleOptions
-) =>
-  knex('games')
-    .select(groupByColumn)
-    .sum({
-      global_sales: 'global_sales',
-      na_sales: 'na_sales',
-      eu_sales: 'eu_sales',
-      jp_sales: 'jp_sales',
-      other_sales: 'other_sales',
-    })
-    .where(where)
-    .groupBy(groupByColumn)
-    .orderBy('global_sales', 'desc')
-
-const queryByScore2 = (scoreType: 'critic_score' | 'user_score') => (
   where: SimpleOptions
 ) =>
   knex('games')
@@ -224,15 +66,12 @@ const queryByScore2 = (scoreType: 'critic_score' | 'user_score') => (
 
 const queryEachTitleVersionBy = (where: SimpleOptions) =>
   knex('games').select().where(where).orderBy('global_sales', 'desc')
-//.limit(realLimitPlusOne)
 
 const queryGamesListBy = (where: SimpleOptions) =>
-  knex('games').select().where(where) //.limit(realLimitPlusOne)
+  knex('games').select().where(where)
 
-/*type QueryType = { groupByColumn: string }
-        | { scoreType: 'critic_score' | 'user_score' }
-        | { gamesQuery: true }
-        | { titlesQuery: true }*/
+/* -------------------------- determine query type -------------------------- */
+
 type QueryType =
   | {
       type: 'user_score' | 'critic_score' | 'gamesList' | 'eachTitleVersion'
@@ -242,13 +81,15 @@ type QueryType =
       data: string
     }
 
+// select different queries to implement as subqueries
+// within the dynamicPagination function below
 const determineQueryType = (queryType: QueryType) => {
   switch (queryType.type) {
     case 'user_score': {
-      return queryByScore2('user_score')
+      return queryByScore('user_score')
     }
     case 'critic_score': {
-      return queryByScore2('critic_score')
+      return queryByScore('critic_score')
     }
     case 'eachTitleVersion': {
       return queryEachTitleVersionBy
@@ -257,7 +98,7 @@ const determineQueryType = (queryType: QueryType) => {
       return queryGamesListBy
     }
     case 'groupBy': {
-      return querySalesBy2(queryType.data)
+      return querySalesBy(queryType.data)
     }
     default: {
       throw new Error('wrong query type submitted to pagination HOF')
@@ -265,7 +106,17 @@ const determineQueryType = (queryType: QueryType) => {
   }
 }
 
-const withDynamicRowNumPagination = (queryType: QueryType) => async (options: {
+/* --------------- cursor-based pagination for dynamic queries -------------- */
+
+// MUST CHECK VALUES ON BACKEND BEFORE EXECUTING!!!
+// since user input from front end can shape column names,
+// this MUST be validated before execution
+
+// additionally, the cursor position stored on frontend
+// will need to be invalidated when the query changes
+// since the row_number corresponds to a dynamic table
+
+const withDynamicPagination = (queryType: QueryType) => async (options: {
   whereOptions: SimpleOptions
   limit: number
   cursor: number
@@ -320,34 +171,34 @@ const withDynamicRowNumPagination = (queryType: QueryType) => async (options: {
   }
 }
 
-// export formatted queries
-export const crossPlatformTitleQuery = withDynamicRowNumPagination({
+/* --------------- export formatted queries without pagination -------------- */
+
+export const genreQuery = querySalesBy('genre')
+export const ratingQuery = querySalesBy('rating')
+export const consoleQuery = querySalesBy('console')
+
+/* ---------------- export formatted queries with pagination ---------------- */
+
+export const crossPlatformTitleQuery = withDynamicPagination({
   type: 'groupBy',
   data: 'title',
 })
-export const PublisherQuery = withDynamicRowNumPagination({
+export const PublisherQuery = withDynamicPagination({
   type: 'groupBy',
   data: 'publisher',
 })
-export const yearOfReleaseQuery = withDynamicRowNumPagination({
+export const yearOfReleaseQuery = withDynamicPagination({
   type: 'groupBy',
   data: 'year_of_release',
 })
 
-export const criticScoreQuery = withDynamicRowNumPagination({
+export const criticScoreQuery = withDynamicPagination({
   type: 'critic_score',
 })
-export const userScoreQuery = withDynamicRowNumPagination({
+export const userScoreQuery = withDynamicPagination({
   type: 'user_score',
 })
-export const eachTtitleVersionQuery = withDynamicRowNumPagination({
+export const eachTtitleVersionQuery = withDynamicPagination({
   type: 'eachTitleVersion',
 })
-export const gamesListQuery = withDynamicRowNumPagination({ type: 'gamesList' })
-
-//genre
-export const genreQuery = querySalesBy2('genre')
-//rating
-export const ratingQuery = querySalesBy2('rating')
-//console
-export const consoleQuery = querySalesBy2('console')
+export const gamesListQuery = withDynamicPagination({ type: 'gamesList' })
