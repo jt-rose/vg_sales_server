@@ -271,17 +271,26 @@ const withDynamicRowNumPagination = (queryType: QueryType) => async (options: {
   cursor: number
 }) => {
   const { whereOptions, limit, cursor } = options
-  // get real limit and plus one from user-submitted limit
-  const { realLimit, realLimitPlusOne } = getRealLimit(limit)
+  // get real limit from user-submitted limit
+  const realLimit = Math.min(50, limit)
+  /* NOTE: may change to accept last cursor and add +1 */
 
   // define cursor range for query
+  // start from provided cursor and add realLimit for realLimit plus one
   const cursorRange = {
     start: cursor,
-    end: cursor + realLimitPlusOne,
+    end: cursor + realLimit,
   }
 
   // define type of query to apply pagination to
   const subQuery = determineQueryType(queryType)
+  //refactor later, add support for regional sales
+  const orderRowNumBy =
+    queryType.type === 'critic_score' || queryType.type === 'user_score'
+      ? queryType.type
+      : queryType.type === 'gamesList'
+      ? 'title'
+      : 'global_sales'
 
   // run query
   const res = await knex
@@ -292,7 +301,7 @@ const withDynamicRowNumPagination = (queryType: QueryType) => async (options: {
         .select(
           knex.raw(
             '*, ROW_NUMBER() OVER (ORDER BY tempo.?? DESC) AS row_n',
-            'global_sales' /** */
+            orderRowNumBy /*refactor to allow abc order for gamesList query */
           )
         )
         .from('tempo')
@@ -302,7 +311,7 @@ const withDynamicRowNumPagination = (queryType: QueryType) => async (options: {
     .from('with_row_n')
 
   // determine if additional items are left to query
-  const hasMore = res.length === realLimitPlusOne
+  const hasMore = res.length === realLimit + 1
 
   // return paginated query object
   return {

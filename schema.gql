@@ -31,10 +31,11 @@ type CrossPlatformSales {
   jp_sales: Float!
   na_sales: Float!
   other_sales: Float!
+  row_n: Int!
   title: String!
 }
 
-type GAMES {
+type GamesWithRowCount {
   console: String!
   critic_count: Int!
   critic_score: Int!
@@ -48,6 +49,7 @@ type GAMES {
   other_sales: Float!
   publisher: String!
   rating: String!
+  row_n: Int!
   title: String!
   unique_by_name: String!
   unique_by_year: String!
@@ -72,7 +74,7 @@ type PaginatedCrossPlatformSales {
 
 type PaginatedGames {
   hasMore: Boolean!
-  rows: [GAMES!]!
+  rows: [GamesWithRowCount!]!
 }
 
 type PaginatedPublisherSales {
@@ -92,21 +94,22 @@ type PublisherSales {
   na_sales: Float!
   other_sales: Float!
   publisher: String!
+  row_n: Int!
 }
 
 type Query {
   consoleMakers: [CONSOLE_MAKERS!]!
   consoles: [CONSOLES!]!
-  games(limit: Int!): PaginatedGames!
-  highestCriticScores(limit: Int!): PaginatedGames!
-  highestUserScores(limit: Int!): PaginatedGames!
+  games(cursor: Int!, limit: Int!): PaginatedGames!
+  highestCriticScores(cursor: Int!, limit: Int!): PaginatedGames!
+  highestUserScores(cursor: Int!, limit: Int!): PaginatedGames!
   salesByConsole: [ConsoleGameSales!]!
-  salesByCrossPlatformTitles(limit: Int!): PaginatedCrossPlatformSales!
+  salesByCrossPlatformTitles(cursor: Int!, limit: Int!): PaginatedCrossPlatformSales!
   salesByGenre: [GenreSales!]!
-  salesByPublisher(limit: Int!): PaginatedPublisherSales!
+  salesByPublisher(cursor: Int!, limit: Int!): PaginatedPublisherSales!
   salesByRating: [RatingSales!]!
-  salesByTitles(limit: Int!): PaginatedGames!
-  salesByYear(limit: Int!): PaginatedYearSales!
+  salesByTitles(cursor: Int!, limit: Int!): PaginatedGames!
+  salesByYear(cursor: Int!, limit: Int!): PaginatedYearSales!
 }
 
 type RatingSales {
@@ -124,5 +127,6 @@ type YearSales {
   jp_sales: Float!
   na_sales: Float!
   other_sales: Float!
+  row_n: Int!
   year_of_release: Int!
 }

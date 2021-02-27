@@ -38,15 +38,27 @@ export class RatingSales extends CombinedSales {
 /* -------------------- response fields with pagination -------------------- */
 
 @ObjectType()
+class GamesWithRowCount extends GAMES {
+  @Field(() => Int)
+  row_n!: number
+}
+
+@ObjectType()
 export class PaginatedGames {
-  @Field(() => [GAMES])
-  rows: GAMES[]
+  @Field(() => [GamesWithRowCount])
+  rows: GamesWithRowCount[]
   @Field()
   hasMore: boolean
 }
 
 @ObjectType()
-class CrossPlatformSales extends CombinedSales {
+export class CombinedSalesWithRowCount extends CombinedSales {
+  @Field(() => Int)
+  row_n!: number
+}
+
+@ObjectType()
+class CrossPlatformSales extends CombinedSalesWithRowCount {
   @Field()
   title!: string
 }
@@ -60,7 +72,7 @@ export class PaginatedCrossPlatformSales {
 }
 
 @ObjectType()
-class YearSales extends CombinedSales {
+class YearSales extends CombinedSalesWithRowCount {
   @Field(() => Int)
   year_of_release!: number
 }
@@ -74,7 +86,7 @@ export class PaginatedYearSales {
 }
 
 @ObjectType()
-class PublisherSales extends CombinedSales {
+class PublisherSales extends CombinedSalesWithRowCount {
   @Field()
   publisher!: string
 }
