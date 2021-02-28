@@ -27,7 +27,7 @@ HAVING title = :title;
 -- find single with filter options
 SELECT *
 FROM games
-WHERE title = :title -- ot Like?
+WHERE title = :title -- or Like?
     AND year_of_release = :year -- what about range?
     AND console = :console
     AND genre = :genre
@@ -35,7 +35,6 @@ WHERE title = :title -- ot Like?
     AND publisher = :publisher
 LIMIT :limit;
 -- with pagination
---this works, but there has to be a leaner way to do it
 SELECT *
 FROM (
         SELECT *,

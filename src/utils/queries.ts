@@ -1,5 +1,6 @@
 import dotenv from 'dotenv'
 import Knex from 'knex'
+import { InputType, Field, Int } from 'type-graphql'
 
 dotenv.config()
 
@@ -34,14 +35,17 @@ interface QueryParamsFilter {
 }
 */
 
-interface SimpleOptions {
+@InputType()
+class WhereOptions {
+  @Field(() => String, { nullable: true })
   title?: string
+  @Field(() => String, { nullable: true })
   console?: string
 }
 
 /* ------------------------- pre-paginated queries -------------------------- */
 
-const querySalesBy = (groupByColumn: string) => (where: SimpleOptions) =>
+const querySalesBy = (groupByColumn: string) => (where: WhereOptions) =>
   knex('games')
     .select(groupByColumn)
     .sum({
@@ -56,7 +60,7 @@ const querySalesBy = (groupByColumn: string) => (where: SimpleOptions) =>
     .orderBy('global_sales', 'desc')
 
 const queryByScore = (scoreType: 'critic_score' | 'user_score') => (
-  where: SimpleOptions
+  where: WhereOptions
 ) =>
   knex('games')
     .select()
@@ -64,10 +68,10 @@ const queryByScore = (scoreType: 'critic_score' | 'user_score') => (
     .whereNotNull(scoreType)
     .orderBy(scoreType, 'desc')
 
-const queryEachTitleVersionBy = (where: SimpleOptions) =>
+const queryEachTitleVersionBy = (where: WhereOptions) =>
   knex('games').select().where(where).orderBy('global_sales', 'desc')
 
-const queryGamesListBy = (where: SimpleOptions) =>
+const queryGamesListBy = (where: WhereOptions) =>
   knex('games').select().where(where)
 
 /* -------------------------- determine query type -------------------------- */
@@ -115,12 +119,19 @@ const determineQueryType = (queryType: QueryType) => {
 // additionally, the cursor position stored on frontend
 // will need to be invalidated when the query changes
 // since the row_number corresponds to a dynamic table
-
-const withDynamicPagination = (queryType: QueryType) => async (options: {
-  whereOptions: SimpleOptions
+@InputType()
+export class QueryOptions {
+  @Field(() => WhereOptions, { nullable: true })
+  whereOptions: WhereOptions
+  @Field(() => Int)
   limit: number
+  @Field(() => Int)
   cursor: number
-}) => {
+}
+
+const withDynamicPagination = (queryType: QueryType) => async (
+  options: QueryOptions
+) => {
   const { whereOptions, limit, cursor } = options
   // get real limit from user-submitted limit
   const realLimit = Math.min(50, limit)

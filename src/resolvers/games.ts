@@ -9,6 +9,7 @@ import {
   ratingQuery,
   userScoreQuery,
   yearOfReleaseQuery,
+  QueryOptions,
 } from './../utils/queries'
 import 'reflect-metadata'
 import { Resolver, Query, Int, Arg } from 'type-graphql'
@@ -26,14 +27,16 @@ import {
 export class Games {
   @Query(() => PaginatedGames)
   async games(
-    @Arg('limit', () => Int) limit: number,
-    @Arg('cursor', () => Int) cursor: number
+    @Arg('options', () => QueryOptions) options: QueryOptions
+    //@Arg('limit', () => Int) limit: number,
+    //@Arg('cursor', () => Int) cursor: number
   ) {
-    return gamesListQuery({
+    return gamesListQuery(options)
+    /*return gamesListQuery({
       whereOptions: {}, // update later
       limit,
       cursor,
-    })
+    })*/
   }
 
   // update filter, cursor, and limit args later

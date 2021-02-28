@@ -100,7 +100,7 @@ type PublisherSales {
 type Query {
   consoleMakers: [CONSOLE_MAKERS!]!
   consoles: [CONSOLES!]!
-  games(cursor: Int!, limit: Int!): PaginatedGames!
+  games(options: QueryOptions!): PaginatedGames!
   highestCriticScores(cursor: Int!, limit: Int!): PaginatedGames!
   highestUserScores(cursor: Int!, limit: Int!): PaginatedGames!
   salesByConsole: [ConsoleGameSales!]!
@@ -112,6 +112,12 @@ type Query {
   salesByYear(cursor: Int!, limit: Int!): PaginatedYearSales!
 }
 
+input QueryOptions {
+  cursor: Int!
+  limit: Int!
+  whereOptions: WhereOptions
+}
+
 type RatingSales {
   eu_sales: Float!
   global_sales: Float!
@@ -119,6 +125,11 @@ type RatingSales {
   na_sales: Float!
   other_sales: Float!
   rating: String
+}
+
+input WhereOptions {
+  console: String
+  title: String
 }
 
 type YearSales {
