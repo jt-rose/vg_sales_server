@@ -36,7 +36,7 @@ interface QueryParamsFilter {
 */
 
 @InputType()
-class WhereOptions {
+export class WhereOptions {
   @Field(() => String, { nullable: true })
   title?: string
   @Field(() => String, { nullable: true })
@@ -120,7 +120,7 @@ const determineQueryType = (queryType: QueryType) => {
 // will need to be invalidated when the query changes
 // since the row_number corresponds to a dynamic table
 @InputType()
-export class QueryOptions {
+export class PaginatedWhereOptions {
   @Field(() => WhereOptions, { nullable: true })
   whereOptions: WhereOptions
   @Field(() => Int)
@@ -130,7 +130,7 @@ export class QueryOptions {
 }
 
 const withDynamicPagination = (queryType: QueryType) => async (
-  options: QueryOptions
+  options: PaginatedWhereOptions
 ) => {
   const { whereOptions, limit, cursor } = options
   // get real limit from user-submitted limit

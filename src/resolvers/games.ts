@@ -1,3 +1,13 @@
+import { Resolver, Query, Arg } from 'type-graphql'
+import {
+  PaginatedGames,
+  PaginatedCrossPlatformSales,
+  GenreSales,
+  PaginatedYearSales,
+  PaginatedPublisherSales,
+  ConsoleGameSales,
+  RatingSales,
+} from '../fields/RESPONSE'
 import {
   consoleQuery,
   criticScoreQuery,
@@ -9,124 +19,77 @@ import {
   ratingQuery,
   userScoreQuery,
   yearOfReleaseQuery,
-  QueryOptions,
+  PaginatedWhereOptions,
+  WhereOptions,
 } from './../utils/queries'
-import 'reflect-metadata'
-import { Resolver, Query, Int, Arg } from 'type-graphql'
-import {
-  PaginatedGames,
-  PaginatedCrossPlatformSales,
-  GenreSales,
-  PaginatedYearSales,
-  PaginatedPublisherSales,
-  ConsoleGameSales,
-  RatingSales,
-} from '../fields/RESPONSE'
 
 @Resolver()
 export class Games {
   @Query(() => PaginatedGames)
   async games(
-    @Arg('options', () => QueryOptions) options: QueryOptions
-    //@Arg('limit', () => Int) limit: number,
-    //@Arg('cursor', () => Int) cursor: number
+    @Arg('options', () => PaginatedWhereOptions) options: PaginatedWhereOptions
   ) {
     return gamesListQuery(options)
-    /*return gamesListQuery({
-      whereOptions: {}, // update later
-      limit,
-      cursor,
-    })*/
   }
 
-  // update filter, cursor, and limit args later
   // not combining sales of a single title across consoles/ PC - add later
   @Query(() => PaginatedGames)
   async salesByTitles(
-    @Arg('limit', () => Int) limit: number,
-    @Arg('cursor', () => Int) cursor: number
+    @Arg('options', () => PaginatedWhereOptions) options: PaginatedWhereOptions
   ) {
-    return eachTtitleVersionQuery({
-      whereOptions: {}, // update later
-      limit,
-      cursor,
-    })
+    return eachTtitleVersionQuery(options)
   }
 
   @Query(() => PaginatedCrossPlatformSales)
   async salesByCrossPlatformTitles(
-    @Arg('limit', () => Int) limit: number,
-    @Arg('cursor', () => Int) cursor: number
+    @Arg('options', () => PaginatedWhereOptions) options: PaginatedWhereOptions
   ) {
-    return crossPlatformTitleQuery({
-      whereOptions: {}, // update later
-      limit,
-      cursor,
-    })
+    return crossPlatformTitleQuery(options)
   }
 
   @Query(() => [GenreSales])
-  async salesByGenre() {
-    return genreQuery({})
+  async salesByGenre(@Arg('where', () => WhereOptions) where: WhereOptions) {
+    return genreQuery(where)
   }
 
   @Query(() => PaginatedYearSales)
   async salesByYear(
-    @Arg('limit', () => Int) limit: number,
-    @Arg('cursor', () => Int) cursor: number
+    @Arg('options', () => PaginatedWhereOptions) options: PaginatedWhereOptions
   ) {
-    return yearOfReleaseQuery({
-      whereOptions: {}, // update later
-      limit,
-      cursor,
-    })
+    return yearOfReleaseQuery(options)
   }
 
   @Query(() => PaginatedPublisherSales)
   async salesByPublisher(
-    @Arg('limit', () => Int) limit: number,
-    @Arg('cursor', () => Int) cursor: number
+    @Arg('options', () => PaginatedWhereOptions) options: PaginatedWhereOptions
   ) {
-    return PublisherQuery({
-      whereOptions: {}, // update later
-      limit,
-      cursor,
-    })
+    return PublisherQuery(options)
   }
 
   // this is for games sold per console, not console sales themselves
   @Query(() => [ConsoleGameSales])
-  async salesByConsole() {
-    return consoleQuery({})
+  async salesByConsole(@Arg('where', () => WhereOptions) where: WhereOptions) {
+    return consoleQuery(where)
   }
-  // compare console sales to game sales
+
+  // Note: provide resolver to compare console sales to game sales
 
   @Query(() => [RatingSales])
-  async salesByRating() {
-    return ratingQuery({})
+  async salesByRating(@Arg('where', () => WhereOptions) where: WhereOptions) {
+    return ratingQuery(where)
   }
 
   @Query(() => PaginatedGames)
   async highestCriticScores(
-    @Arg('limit', () => Int) limit: number,
-    @Arg('cursor', () => Int) cursor: number
+    @Arg('options', () => PaginatedWhereOptions) options: PaginatedWhereOptions
   ) {
-    return criticScoreQuery({
-      whereOptions: {}, // update later
-      limit,
-      cursor,
-    })
+    return criticScoreQuery(options)
   }
 
   @Query(() => PaginatedGames)
   async highestUserScores(
-    @Arg('limit', () => Int) limit: number,
-    @Arg('cursor', () => Int) cursor: number
+    @Arg('options', () => PaginatedWhereOptions) options: PaginatedWhereOptions
   ) {
-    return userScoreQuery({
-      whereOptions: {}, // update later
-      limit,
-      cursor,
-    })
+    return userScoreQuery(options)
   }
 }
