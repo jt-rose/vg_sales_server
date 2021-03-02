@@ -128,8 +128,8 @@ type RatingSales {
 }
 
 input WhereOptions {
-  console: String
-  title: String
+  console: [String!]
+  title: [String!]
 }
 
 type YearSales {

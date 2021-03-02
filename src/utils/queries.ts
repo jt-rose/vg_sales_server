@@ -37,42 +37,52 @@ interface QueryParamsFilter {
 
 @InputType()
 export class WhereOptions {
-  @Field(() => String, { nullable: true })
-  title?: string
-  @Field(() => String, { nullable: true })
-  console?: string
+  @Field(() => [String], { nullable: true })
+  title?: string[] // multiple
+  @Field(() => [String], { nullable: true })
+  console?: string[] // multiple
 }
 
 /* ------------------------- pre-paginated queries -------------------------- */
 
-const querySalesBy = (groupByColumn: string) => (where: WhereOptions) =>
-  knex('games')
-    .select(groupByColumn)
-    .sum({
-      global_sales: 'global_sales',
-      na_sales: 'na_sales',
-      eu_sales: 'eu_sales',
-      jp_sales: 'jp_sales',
-      other_sales: 'other_sales',
-    })
-    .where(where)
-    .groupBy(groupByColumn)
-    .orderBy('global_sales', 'desc')
+// HOF to apply 'where' and 'whereIn' options to knex queries
+const withWhereOptions = (query: any) => (whereOptions: WhereOptions) => {
+  // add validation
+  const optionsArray = Object.entries(whereOptions)
 
-const queryByScore = (scoreType: 'critic_score' | 'user_score') => (
-  where: WhereOptions
-) =>
-  knex('games')
-    .select()
-    .where(where)
-    .whereNotNull(scoreType)
-    .orderBy(scoreType, 'desc')
+  return optionsArray.reduce((prev, curr) => {
+    if (curr[1].length > 1) {
+      return prev.whereIn(curr[0], curr[1])
+    } else {
+      return prev.where(curr[0], curr[1][0])
+    }
+  }, query)
+}
 
-const queryEachTitleVersionBy = (where: WhereOptions) =>
-  knex('games').select().where(where).orderBy('global_sales', 'desc')
+const querySalesBy = (groupByColumn: string) =>
+  withWhereOptions(
+    knex('games')
+      .select(groupByColumn)
+      .sum({
+        global_sales: 'global_sales',
+        na_sales: 'na_sales',
+        eu_sales: 'eu_sales',
+        jp_sales: 'jp_sales',
+        other_sales: 'other_sales',
+      })
+      .groupBy(groupByColumn)
+      .orderBy('global_sales', 'desc')
+  )
 
-const queryGamesListBy = (where: WhereOptions) =>
-  knex('games').select().where(where)
+const queryByScore = (scoreType: 'critic_score' | 'user_score') =>
+  withWhereOptions(
+    knex('games').select().whereNotNull(scoreType).orderBy(scoreType, 'desc')
+  )
+
+const queryEachTitleVersionBy = () =>
+  withWhereOptions(knex('games').select().orderBy('global_sales', 'desc'))
+
+const queryGamesListBy = () => withWhereOptions(knex('games').select())
 
 /* -------------------------- determine query type -------------------------- */
 
@@ -96,10 +106,10 @@ const determineQueryType = (queryType: QueryType) => {
       return queryByScore('critic_score')
     }
     case 'eachTitleVersion': {
-      return queryEachTitleVersionBy
+      return queryEachTitleVersionBy()
     }
     case 'gamesList': {
-      return queryGamesListBy
+      return queryGamesListBy()
     }
     case 'groupBy': {
       return querySalesBy(queryType.data)
@@ -119,6 +129,7 @@ const determineQueryType = (queryType: QueryType) => {
 // additionally, the cursor position stored on frontend
 // will need to be invalidated when the query changes
 // since the row_number corresponds to a dynamic table
+
 @InputType()
 export class PaginatedWhereOptions {
   @Field(() => WhereOptions, { nullable: true })
@@ -213,3 +224,8 @@ export const eachTtitleVersionQuery = withDynamicPagination({
   type: 'eachTitleVersion',
 })
 export const gamesListQuery = withDynamicPagination({ type: 'gamesList' })
+
+//https://www.kaggle.com/juttugarakesh/video-game-data
+// victory urql
+
+// note add conversion for roman numerals 2 === II
