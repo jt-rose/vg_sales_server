@@ -43,11 +43,23 @@ export class WhereOptions {
   console?: string[] // multiple
 }
 
-/* ------------------------- pre-paginated queries -------------------------- */
+/* ------------------- where filters and pagination logic ------------------- */
+
+type QueryType =
+  | ReturnType<typeof querySalesBy>
+  | ReturnType<typeof queryByScore>
+  | typeof queryEachTitleVersionBy
+  | typeof queryGamesListBy
 
 // HOF to apply 'where' and 'whereIn' options to knex queries
-const withWhereOptions = (query: any) => (whereOptions: WhereOptions) => {
+
+// due to issues with a possible closure updating the knex sequence
+// the query needs to be initialized through a function each time
+// rather than just stored directly in a variable
+
+const withWhereOptions = (query: QueryType) => (whereOptions: WhereOptions) => {
   // add validation
+  const newQuery = query()
   const optionsArray = Object.entries(whereOptions)
 
   return optionsArray.reduce((prev, curr) => {
@@ -56,71 +68,65 @@ const withWhereOptions = (query: any) => (whereOptions: WhereOptions) => {
     } else {
       return prev.where(curr[0], curr[1][0])
     }
-  }, query)
+  }, newQuery)
 }
 
-const querySalesBy = (groupByColumn: string) =>
-  withWhereOptions(
-    knex('games')
-      .select(groupByColumn)
-      .sum({
-        global_sales: 'global_sales',
-        na_sales: 'na_sales',
-        eu_sales: 'eu_sales',
-        jp_sales: 'jp_sales',
-        other_sales: 'other_sales',
-      })
-      .groupBy(groupByColumn)
-      .orderBy('global_sales', 'desc')
-  )
+// apply pagination to queries with where options
+const withPaginatedWhereOptions = (query: QueryType) => async (
+  options: PaginatedWhereOptions
+) => {
+  const { where, limit, offset } = options
+  // get real limit from user-submitted limit
+  const realLimit = Math.min(50, limit)
 
-const queryByScore = (scoreType: 'critic_score' | 'user_score') =>
-  withWhereOptions(
-    knex('games').select().whereNotNull(scoreType).orderBy(scoreType, 'desc')
-  )
+  // run query with limit and offset
+  const res = await withWhereOptions(query)(where)
+    .limit(realLimit + 1)
+    .offset(offset)
 
-const queryEachTitleVersionBy = () =>
-  withWhereOptions(knex('games').select().orderBy('global_sales', 'desc'))
+  // determine if additional items are left to query
+  const hasMore = res.length === realLimit + 1
 
-const queryGamesListBy = () => withWhereOptions(knex('games').select())
-
-/* -------------------------- determine query type -------------------------- */
-
-type QueryType =
-  | {
-      type: 'user_score' | 'critic_score' | 'gamesList' | 'eachTitleVersion'
-    }
-  | {
-      type: 'groupBy'
-      data: string
-    }
-
-// select different queries to implement as subqueries
-// within the dynamicPagination function below
-const determineQueryType = (queryType: QueryType) => {
-  switch (queryType.type) {
-    case 'user_score': {
-      return queryByScore('user_score')
-    }
-    case 'critic_score': {
-      return queryByScore('critic_score')
-    }
-    case 'eachTitleVersion': {
-      return queryEachTitleVersionBy()
-    }
-    case 'gamesList': {
-      return queryGamesListBy()
-    }
-    case 'groupBy': {
-      return querySalesBy(queryType.data)
-    }
-    default: {
-      throw new Error('wrong query type submitted to pagination HOF')
-    }
+  // return paginated query object
+  return {
+    rows: res.slice(0, realLimit),
+    hasMore,
   }
 }
 
-/* --------------- cursor-based pagination for dynamic queries -------------- */
+/* --------------------------- SQL query templates -------------------------- */
+
+type ColumnGrouping =
+  | 'genre'
+  | 'rating'
+  | 'console'
+  | 'title'
+  | 'publisher'
+  | 'year_of_release'
+
+//  generate sql through function call each time to avoid closure state updates
+const querySalesBy = (groupByColumn: ColumnGrouping) => () =>
+  knex('games')
+    .select(groupByColumn)
+    .sum({
+      global_sales: 'global_sales',
+      na_sales: 'na_sales',
+      eu_sales: 'eu_sales',
+      jp_sales: 'jp_sales',
+      other_sales: 'other_sales',
+    })
+    .groupBy(groupByColumn)
+    .orderBy('global_sales', 'desc')
+
+type ScoreType = 'critic_score' | 'user_score'
+
+const queryByScore = (scoreType: ScoreType) => () =>
+  knex('games').select().whereNotNull(scoreType).orderBy(scoreType, 'desc')
+
+const queryEachTitleVersionBy = () =>
+  knex('games').select().orderBy('global_sales', 'desc')
+
+const queryGamesListBy = () => knex('games').select()
 
 // MUST CHECK VALUES ON BACKEND BEFORE EXECUTING!!!
 // since user input from front end can shape column names,
@@ -133,97 +139,42 @@ const determineQueryType = (queryType: QueryType) => {
 @InputType()
 export class PaginatedWhereOptions {
   @Field(() => WhereOptions, { nullable: true })
-  whereOptions: WhereOptions
+  where: WhereOptions
   @Field(() => Int)
   limit: number
   @Field(() => Int)
-  cursor: number
-}
-
-const withDynamicPagination = (queryType: QueryType) => async (
-  options: PaginatedWhereOptions
-) => {
-  const { whereOptions, limit, cursor } = options
-  // get real limit from user-submitted limit
-  const realLimit = Math.min(50, limit)
-  /* NOTE: may change to accept last cursor and add +1 */
-
-  // define cursor range for query
-  // start from provided cursor and add realLimit for realLimit plus one
-  const cursorRange = {
-    start: cursor,
-    end: cursor + realLimit,
-  }
-
-  // define type of query to apply pagination to
-  const subQuery = determineQueryType(queryType)
-  //refactor later, add support for regional sales
-  const orderRowNumBy =
-    queryType.type === 'critic_score' || queryType.type === 'user_score'
-      ? queryType.type
-      : queryType.type === 'gamesList'
-      ? 'title'
-      : 'global_sales'
-
-  // run query
-  const res = await knex
-    .with(
-      'with_row_n',
-      knex
-        .with('tempo', subQuery(whereOptions))
-        .select(
-          knex.raw(
-            '*, ROW_NUMBER() OVER (ORDER BY tempo.?? DESC) AS row_n',
-            orderRowNumBy /*refactor to allow abc order for gamesList query */
-          )
-        )
-        .from('tempo')
-    )
-    .select()
-    .whereRaw('with_row_n.row_n between :start and :end', cursorRange)
-    .from('with_row_n')
-
-  // determine if additional items are left to query
-  const hasMore = res.length === realLimit + 1
-
-  // return paginated query object
-  return {
-    rows: res.slice(0, realLimit),
-    hasMore,
-  }
+  offset: number
 }
 
 /* --------------- export formatted queries without pagination -------------- */
 
-export const genreQuery = querySalesBy('genre')
-export const ratingQuery = querySalesBy('rating')
-export const consoleQuery = querySalesBy('console')
+// update to remove pagination
+export const genreQuery = withWhereOptions(querySalesBy('genre'))
+export const ratingQuery = withWhereOptions(querySalesBy('rating'))
+export const consoleQuery = withWhereOptions(querySalesBy('console'))
 
 /* ---------------- export formatted queries with pagination ---------------- */
 
-export const crossPlatformTitleQuery = withDynamicPagination({
-  type: 'groupBy',
-  data: 'title',
-})
-export const PublisherQuery = withDynamicPagination({
-  type: 'groupBy',
-  data: 'publisher',
-})
-export const yearOfReleaseQuery = withDynamicPagination({
-  type: 'groupBy',
-  data: 'year_of_release',
-})
+export const crossPlatformTitleQuery = withPaginatedWhereOptions(
+  querySalesBy('title')
+)
+export const PublisherQuery = withPaginatedWhereOptions(
+  querySalesBy('publisher')
+)
+export const yearOfReleaseQuery = withPaginatedWhereOptions(
+  querySalesBy('year_of_release')
+)
 
-export const criticScoreQuery = withDynamicPagination({
-  type: 'critic_score',
-})
-export const userScoreQuery = withDynamicPagination({
-  type: 'user_score',
-})
-export const eachTtitleVersionQuery = withDynamicPagination({
-  type: 'eachTitleVersion',
-})
-export const gamesListQuery = withDynamicPagination({ type: 'gamesList' })
+export const criticScoreQuery = withPaginatedWhereOptions(
+  queryByScore('critic_score')
+)
+export const userScoreQuery = withPaginatedWhereOptions(
+  queryByScore('user_score')
+)
+export const eachTitleVersionQuery = withPaginatedWhereOptions(
+  queryEachTitleVersionBy
+)
+export const gamesListQuery = withPaginatedWhereOptions(queryGamesListBy)
 
 //https://www.kaggle.com/juttugarakesh/video-game-data
 // victory urql

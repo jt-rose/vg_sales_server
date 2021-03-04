@@ -39,8 +39,8 @@ export class RatingSales extends CombinedSales {
 
 @ObjectType()
 class GamesWithRowCount extends GAMES {
-  @Field(() => Int)
-  row_n!: number
+  //@Field(() => Int)
+  //row_n!: number
 }
 
 @ObjectType()
@@ -52,13 +52,7 @@ export class PaginatedGames {
 }
 
 @ObjectType()
-export class CombinedSalesWithRowCount extends CombinedSales {
-  @Field(() => Int)
-  row_n!: number
-}
-
-@ObjectType()
-class CrossPlatformSales extends CombinedSalesWithRowCount {
+class CrossPlatformSales extends CombinedSales {
   @Field()
   title!: string
 }
@@ -72,7 +66,7 @@ export class PaginatedCrossPlatformSales {
 }
 
 @ObjectType()
-class YearSales extends CombinedSalesWithRowCount {
+class YearSales extends CombinedSales {
   @Field(() => Int)
   year_of_release!: number
 }
@@ -86,7 +80,7 @@ export class PaginatedYearSales {
 }
 
 @ObjectType()
-class PublisherSales extends CombinedSalesWithRowCount {
+class PublisherSales extends CombinedSales {
   @Field()
   publisher!: string
 }

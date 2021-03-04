@@ -31,7 +31,6 @@ type CrossPlatformSales {
   jp_sales: Float!
   na_sales: Float!
   other_sales: Float!
-  row_n: Int!
   title: String!
 }
 
@@ -49,7 +48,6 @@ type GamesWithRowCount {
   other_sales: Float!
   publisher: String!
   rating: String!
-  row_n: Int!
   title: String!
   unique_by_name: String!
   unique_by_year: String!
@@ -83,9 +81,9 @@ type PaginatedPublisherSales {
 }
 
 input PaginatedWhereOptions {
-  cursor: Int!
   limit: Int!
-  whereOptions: WhereOptions
+  offset: Int!
+  where: WhereOptions
 }
 
 type PaginatedYearSales {
@@ -100,7 +98,6 @@ type PublisherSales {
   na_sales: Float!
   other_sales: Float!
   publisher: String!
-  row_n: Int!
 }
 
 type Query {
@@ -138,6 +135,5 @@ type YearSales {
   jp_sales: Float!
   na_sales: Float!
   other_sales: Float!
-  row_n: Int!
   year_of_release: Int!
 }

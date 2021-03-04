@@ -12,7 +12,7 @@ import {
   consoleQuery,
   criticScoreQuery,
   crossPlatformTitleQuery,
-  eachTtitleVersionQuery,
+  eachTitleVersionQuery,
   gamesListQuery,
   genreQuery,
   PublisherQuery,
@@ -37,7 +37,7 @@ export class Games {
   async salesByTitles(
     @Arg('options', () => PaginatedWhereOptions) options: PaginatedWhereOptions
   ) {
-    return eachTtitleVersionQuery(options)
+    return eachTitleVersionQuery(options)
   }
 
   @Query(() => PaginatedCrossPlatformSales)
