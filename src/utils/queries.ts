@@ -19,6 +19,7 @@ interface QueryParamsFilter {
   // title ilike
   year?: number // add for range
   yearRange?: [number, number]
+
   publishers?: string[]
   consoles?: string[]
   genres?: string[]
@@ -38,9 +39,21 @@ interface QueryParamsFilter {
 @InputType()
 export class WhereOptions {
   @Field(() => [String], { nullable: true })
-  title?: string[] // multiple
+  title?: string[]
+  // title like
   @Field(() => [String], { nullable: true })
-  console?: string[] // multiple
+  console?: string[]
+  @Field(() => [Int], { nullable: true })
+  year_of_release?: [number] | [number, number]
+  @Field(() => [String], { nullable: true })
+  publisher?: string[]
+  @Field(() => [String], { nullable: true })
+  genre?: string[]
+  @Field(() => [String], { nullable: true })
+  rating?: string[]
+  // critic / user score above
+  //developers - incomplete data though
+  // sales above
 }
 
 /* ------------------- where filters and pagination logic ------------------- */
@@ -63,10 +76,18 @@ const withWhereOptions = (query: QueryType) => (whereOptions: WhereOptions) => {
   const optionsArray = Object.entries(whereOptions)
 
   return optionsArray.reduce((prev, curr) => {
+    if (curr[0] === 'year_of_release') {
+      const hasYearRange = curr[1].length > 1
+      if (hasYearRange) {
+        return prev.whereBetween(curr[0], curr[1])
+      } else {
+        return prev.where(curr[0], curr[1][0])
+      } // add for greater than?
+    }
     if (curr[1].length > 1) {
       return prev.whereIn(curr[0], curr[1])
     } else {
-      return prev.where(curr[0], curr[1][0])
+      return prev.where(curr[0], 'ilike', curr[1][0])
     }
   }, newQuery)
 }

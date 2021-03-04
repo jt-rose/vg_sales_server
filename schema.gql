@@ -126,7 +126,11 @@ type RatingSales {
 
 input WhereOptions {
   console: [String!]
+  genre: [String!]
+  publisher: [String!]
+  rating: [String!]
   title: [String!]
+  year_of_release: [Int!]
 }
 
 type YearSales {
