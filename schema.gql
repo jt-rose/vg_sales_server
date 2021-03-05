@@ -49,10 +49,8 @@ type GamesWithRowCount {
   publisher: String!
   rating: String!
   title: String!
-  unique_by_name: String!
-  unique_by_year: String!
   user_count: Int!
-  user_score: Float!
+  user_score: Int!
   year_of_release: Int!
 }
 

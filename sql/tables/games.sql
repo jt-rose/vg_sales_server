@@ -23,9 +23,7 @@ CREATE TYPE GENRE_TYPE AS ENUM (
     'Strategy'
 );
 CREATE TABLE games (
-    -- id was generated before upload so it could be referenced 
-    -- in unique_by_year and unique_by_name
-    "id" BIGINT CONSTRAINT game_id_key PRIMARY KEY,
+    "id" BIGSERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     console VARCHAR(255) REFERENCES consoles (console) NOT NULL,
     year_of_release BIGINT NOT NULL,
@@ -36,14 +34,12 @@ CREATE TABLE games (
     jp_sales DECIMAL(4, 2) NOT NULL CHECK (jp_sales >= 0),
     other_sales DECIMAL(4, 2) NOT NULL CHECK (other_sales >= 0),
     global_sales DECIMAL(4, 2) NOT NULL CHECK (global_sales >= 0),
-    critic_score DECIMAL(4, 2) CHECK (critic_score >= 0),
+    critic_score SMALLINT CHECK (critic_score >= 0),
     critic_count BIGINT CHECK (critic_count >= 0),
-    user_score DECIMAL(4, 2) CHECK (user_score >= 0),
+    user_score SMALLINT CHECK (user_score >= 0),
     user_count BIGINT CHECK (user_count >= 0),
     developer VARCHAR(255),
-    rating RATING_TYPE,
-    unique_by_name VARCHAR(255) NOT NULL UNIQUE,
-    unique_by_year VARCHAR(255) NOT NULL UNIQUE
+    rating RATING_TYPE
 );
 COPY games (
     "id",
@@ -62,9 +58,7 @@ COPY games (
     user_score,
     user_count,
     developer,
-    rating,
-    unique_by_name,
-    unique_by_year
+    rating
 )
-FROM 'C:\Users\jtr21\Desktop\WebDev\sites\vg_sales\server\src\sql\imports\games.csv' WITH (FORMAT CSV, HEADER);
+FROM 'C:\Users\jtr21\Desktop\WebDev\sites\vg_sales\server\sql\imports\games.csv' WITH (FORMAT CSV, HEADER);
 CREATE INDEX title_idx ON games (title);

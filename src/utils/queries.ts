@@ -40,7 +40,9 @@ interface QueryParamsFilter {
 export class WhereOptions {
   @Field(() => [String], { nullable: true })
   title?: string[]
-  // title like
+  // titleStartsWith
+  // titleEndsWith
+  // titleContains
   @Field(() => [String], { nullable: true })
   console?: string[]
   @Field(() => [Int], { nullable: true })
@@ -52,7 +54,8 @@ export class WhereOptions {
   @Field(() => [String], { nullable: true })
   rating?: string[]
   // critic / user score above
-  //developers - incomplete data though
+  @Field(() => [String], { nullable: true })
+  developer?: string[]
   // sales above
 }
 

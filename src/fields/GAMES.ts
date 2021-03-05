@@ -58,7 +58,7 @@ export class GAMES {
   @Field(() => Int)
   critic_count: number
 
-  @Field()
+  @Field(() => Int)
   user_score: number
 
   @Field(() => Int)
@@ -69,10 +69,4 @@ export class GAMES {
 
   @Field(() => String)
   rating: Ratings
-
-  @Field(() => String)
-  unique_by_name!: string
-
-  @Field(() => String)
-  unique_by_year!: string
 }
