@@ -53,7 +53,13 @@ export class WhereOptions {
   genre?: string[]
   @Field(() => [String], { nullable: true })
   rating?: string[]
-  // critic / user score above
+  // on frontend, scores provided with only a single number
+  // will be formatted to search for everything >= to that number
+  // ie: 75 will be converted to [75, 100] for a search range of 'all above'
+  @Field(() => [Int], { nullable: true })
+  critic_score?: [number, number]
+  @Field(() => [Int], { nullable: true })
+  user_score?: [number, number]
   @Field(() => [String], { nullable: true })
   developer?: string[]
   // sales above
@@ -73,19 +79,22 @@ type QueryType =
 // the query needs to be initialized through a function each time
 // rather than just stored directly in a variable
 
+const hasNumericSearchType = (whereOption: string) =>
+  ['year_of_release', 'critic_score', 'user_score'].includes(whereOption)
+
 const withWhereOptions = (query: QueryType) => (whereOptions: WhereOptions) => {
   // add validation
   const newQuery = query()
   const optionsArray = Object.entries(whereOptions)
 
   return optionsArray.reduce((prev, curr) => {
-    if (curr[0] === 'year_of_release') {
-      const hasYearRange = curr[1].length > 1
-      if (hasYearRange) {
+    if (hasNumericSearchType(curr[0])) {
+      const hasSearchRange = curr[1].length > 1
+      if (hasSearchRange) {
         return prev.whereBetween(curr[0], curr[1])
       } else {
         return prev.where(curr[0], curr[1][0])
-      } // add for greater than?
+      }
     }
     if (curr[1].length > 1) {
       return prev.whereIn(curr[0], curr[1])

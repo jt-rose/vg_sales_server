@@ -124,10 +124,13 @@ type RatingSales {
 
 input WhereOptions {
   console: [String!]
+  critic_score: [Int!]
+  developer: [String!]
   genre: [String!]
   publisher: [String!]
   rating: [String!]
   title: [String!]
+  user_score: [Int!]
   year_of_release: [Int!]
 }
 
