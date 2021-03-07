@@ -34,11 +34,11 @@ type CrossPlatformSales {
   title: String!
 }
 
-type GamesWithRowCount {
+type GAMES {
   console: String!
-  critic_count: Int!
-  critic_score: Int!
-  developer: String!
+  critic_count: Int
+  critic_score: Int
+  developer: String
   eu_sales: Float!
   genre: String!
   global_sales: Float!
@@ -47,10 +47,10 @@ type GamesWithRowCount {
   na_sales: Float!
   other_sales: Float!
   publisher: String!
-  rating: String!
+  rating: String
   title: String!
-  user_count: Int!
-  user_score: Int!
+  user_count: Int
+  user_score: Int
   year_of_release: Int!
 }
 
@@ -70,7 +70,7 @@ type PaginatedCrossPlatformSales {
 
 type PaginatedGames {
   hasMore: Boolean!
-  rows: [GamesWithRowCount!]!
+  rows: [GAMES!]!
 }
 
 type PaginatedPublisherSales {
@@ -126,10 +126,16 @@ input WhereOptions {
   console: [String!]
   critic_score: [Int!]
   developer: [String!]
+  eu_sales: [Float!]
   genre: [String!]
+  global_sales: [Float!]
+  jp_sales: [Float!]
+  na_sales: [Float!]
+  other_sales: [Float!]
   publisher: [String!]
   rating: [String!]
   title: [String!]
+  titleContains: [String!]
   user_score: [Int!]
   year_of_release: [Int!]
 }

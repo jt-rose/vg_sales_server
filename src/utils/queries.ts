@@ -1,6 +1,6 @@
 import dotenv from 'dotenv'
 import Knex from 'knex'
-import { InputType, Field, Int } from 'type-graphql'
+import { InputType, Field, Int, Float } from 'type-graphql'
 
 dotenv.config()
 
@@ -44,6 +44,8 @@ export class WhereOptions {
   // titleEndsWith
   // titleContains
   @Field(() => [String], { nullable: true })
+  titleContains?: string[]
+  @Field(() => [String], { nullable: true })
   console?: string[]
   @Field(() => [Int], { nullable: true })
   year_of_release?: [number] | [number, number]
@@ -62,7 +64,16 @@ export class WhereOptions {
   user_score?: [number, number]
   @Field(() => [String], { nullable: true })
   developer?: string[]
-  // sales above
+  @Field(() => [Float], { nullable: true })
+  global_sales?: [number, number]
+  @Field(() => [Float], { nullable: true })
+  na_sales?: [number, number]
+  @Field(() => [Float], { nullable: true })
+  eu_sales?: [number, number]
+  @Field(() => [Float], { nullable: true })
+  jp_sales?: [number, number]
+  @Field(() => [Float], { nullable: true })
+  other_sales?: [number, number]
 }
 
 /* ------------------- where filters and pagination logic ------------------- */
@@ -79,28 +90,80 @@ type QueryType =
 // the query needs to be initialized through a function each time
 // rather than just stored directly in a variable
 
-const hasNumericSearchType = (whereOption: string) =>
-  ['year_of_release', 'critic_score', 'user_score'].includes(whereOption)
+const hasNumericSearchType = (whereColumn: string) =>
+  [
+    'year_of_release',
+    'critic_score',
+    'user_score',
+    'global_sales',
+    'na_sales',
+    'eu_sales',
+    'jp_sales',
+    'other_sales',
+  ].includes(whereColumn)
+
+const hasSearchRange = (whereData: string[] | number[]) => whereData.length > 1
+
+const hasTextSearch = (searchType: string) =>
+  ['titleStartsWith', 'titleEndsWith', 'titleContains'].includes(searchType)
+
+const formatTextSearch = (searchType: string, searchConditions: string[]) => {
+  switch (searchType) {
+    case 'title':
+      return searchConditions
+    case 'titleStartsWith':
+      return searchConditions.map((text) => text + '%')
+    case 'titleEndsWith':
+      return searchConditions.map((text) => '%' + text)
+    case 'titleContains':
+      return searchConditions.map((text) => '%' + text + '%')
+    default:
+      throw new Error('incorrect search type provided')
+  }
+}
+
+const getLengthOfIlikeArgs = (length: number) => {
+  switch (length) {
+    case 2:
+      return 'title ilike any(array[?, ?])'
+    case 3:
+      return 'title ilike any(array[?, ?, ?])'
+    case 4:
+      return 'title ilike any(array[?, ?, ?, ?])'
+    case 5:
+      return 'title ilike any(array[?, ?, ?, ?, ?])'
+    default:
+      throw new Error('no more than 5 arguments may be provided')
+  }
+}
 
 const withWhereOptions = (query: QueryType) => (whereOptions: WhereOptions) => {
   // add validation
   const newQuery = query()
   const optionsArray = Object.entries(whereOptions)
 
-  return optionsArray.reduce((prev, curr) => {
-    if (hasNumericSearchType(curr[0])) {
-      const hasSearchRange = curr[1].length > 1
-      if (hasSearchRange) {
-        return prev.whereBetween(curr[0], curr[1])
+  return optionsArray.reduce((prev, current) => {
+    const [column, searchConditions] = current
+    const textSearch = hasTextSearch(column)
+    const range = hasSearchRange(searchConditions)
+
+    if (textSearch) {
+      const formattedTextSearch = formatTextSearch(column, searchConditions)
+      if (range) {
+        const sqlText = getLengthOfIlikeArgs(formattedTextSearch.length)
+        return prev.whereRaw(sqlText, formattedTextSearch)
       } else {
-        return prev.where(curr[0], curr[1][0])
+        return prev.where('title', 'ilike', formattedTextSearch[0])
       }
     }
-    if (curr[1].length > 1) {
-      return prev.whereIn(curr[0], curr[1])
-    } else {
-      return prev.where(curr[0], 'ilike', curr[1][0])
+    if (hasNumericSearchType(column)) {
+      if (range) {
+        return prev.whereBetween(column, searchConditions)
+      } else {
+        return prev.where(column, searchConditions[0])
+      }
     }
+    throw new Error('whoops!')
   }, newQuery)
 }
 

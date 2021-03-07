@@ -52,21 +52,21 @@ export class GAMES {
   @Field()
   global_sales!: number
 
-  @Field(() => Int)
+  @Field(() => Int, { nullable: true })
   critic_score: number
 
-  @Field(() => Int)
+  @Field(() => Int, { nullable: true })
   critic_count: number
 
-  @Field(() => Int)
+  @Field(() => Int, { nullable: true })
   user_score: number
 
-  @Field(() => Int)
+  @Field(() => Int, { nullable: true })
   user_count: number
 
-  @Field()
+  @Field({ nullable: true })
   developer: string
 
-  @Field(() => String)
+  @Field(() => String, { nullable: true })
   rating: Ratings
 }

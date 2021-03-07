@@ -38,15 +38,9 @@ export class RatingSales extends CombinedSales {
 /* -------------------- response fields with pagination -------------------- */
 
 @ObjectType()
-class GamesWithRowCount extends GAMES {
-  //@Field(() => Int)
-  //row_n!: number
-}
-
-@ObjectType()
 export class PaginatedGames {
-  @Field(() => [GamesWithRowCount])
-  rows: GamesWithRowCount[]
+  @Field(() => [GAMES])
+  rows: GAMES[]
   @Field()
   hasMore: boolean
 }
