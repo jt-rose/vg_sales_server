@@ -1,4 +1,5 @@
 import { Resolver, Query, Arg } from 'type-graphql'
+import { PaginatedWhereOptions, WhereOptions } from '../fields/WHERE_OPTIONS'
 import {
   PaginatedGames,
   PaginatedCrossPlatformSales,
@@ -19,8 +20,6 @@ import {
   ratingQuery,
   userScoreQuery,
   yearOfReleaseQuery,
-  PaginatedWhereOptions,
-  WhereOptions,
 } from './../utils/queries'
 
 @Resolver()

@@ -136,6 +136,8 @@ input WhereOptions {
   rating: [String!]
   title: [String!]
   titleContains: [String!]
+  titleEndsWith: [String!]
+  titleStartsWith: [String!]
   user_score: [Int!]
   year_of_release: [Int!]
 }
