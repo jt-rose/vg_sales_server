@@ -1,14 +1,9 @@
 import { InputType, Field, Int, Float } from 'type-graphql'
 
-// MUST CHECK VALUES ON BACKEND BEFORE EXECUTING!!!
-// since user input from front end can shape column names,
-// this MUST be validated before execution
-
-// additionally, the cursor position stored on frontend
-// will need to be invalidated when the query changes
-// since the row_number corresponds to a dynamic table
-
 /* ------------------------ filter object for queries ----------------------- */
+
+// input fields shape the sql query, defining optional 'where' clauses
+// to narrow down what is searched for based on user interests
 
 @InputType()
 export class WhereOptions {
@@ -30,9 +25,6 @@ export class WhereOptions {
   genre?: string[]
   @Field(() => [String], { nullable: true })
   rating?: string[]
-  // on frontend, scores provided with only a single number
-  // will be formatted to search for everything >= to that number
-  // ie: 75 will be converted to [75, 100] for a search range of 'all above'
   @Field(() => [Int], { nullable: true })
   critic_score?: [number, number]
   @Field(() => [Int], { nullable: true })
@@ -51,6 +43,26 @@ export class WhereOptions {
   other_sales?: [number, number]
 }
 
+//
+
+@InputType()
+export class QueryOptions {
+  @Field(() => WhereOptions)
+  where: WhereOptions // optional?
+  @Field() // enums?
+  groupBy: 'year_of_release' | 'genre' // etc. // optional?
+  // validate groupBy if no enums?
+}
+
+@InputType()
+export class PaginatedQueryOptions extends QueryOptions {
+  @Field(() => Int)
+  limit: number
+  @Field(() => Int)
+  offset: number
+}
+
+//
 @InputType()
 export class PaginatedWhereOptions {
   @Field(() => WhereOptions, { nullable: true })

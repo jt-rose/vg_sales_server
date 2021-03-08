@@ -1,6 +1,6 @@
 import dotenv from 'dotenv'
 import Knex from 'knex'
-import { WhereOptions, PaginatedWhereOptions } from '../fields/WHERE_OPTIONS'
+import { WhereOptions, PaginatedWhereOptions } from '../fields/QUERY_OPTIONS'
 
 dotenv.config()
 
@@ -39,13 +39,8 @@ const hasNumericSearchType = (whereColumn: string) =>
 
 const hasSearchRange = (whereData: string[] | number[]) => whereData.length > 1
 
-const hasTextSearch = (searchType: string) =>
-  ['titleStartsWith', 'titleEndsWith', 'titleContains'].includes(searchType)
-
 const formatTextSearch = (searchType: string, searchConditions: string[]) => {
   switch (searchType) {
-    case 'title':
-      return searchConditions
     case 'titleStartsWith':
       return searchConditions.map((text) => text + '%')
     case 'titleEndsWith':
@@ -53,7 +48,7 @@ const formatTextSearch = (searchType: string, searchConditions: string[]) => {
     case 'titleContains':
       return searchConditions.map((text) => '%' + text + '%')
     default:
-      throw new Error('incorrect search type provided')
+      return searchConditions
   }
 }
 
@@ -73,24 +68,13 @@ const getLengthOfIlikeArgs = (length: number) => {
 }
 
 const withWhereOptions = (query: QueryType) => (whereOptions: WhereOptions) => {
-  // add validation
   const newQuery = query()
   const optionsArray = Object.entries(whereOptions)
 
   return optionsArray.reduce((prev, current) => {
     const [column, searchConditions] = current
-    const textSearch = hasTextSearch(column)
     const range = hasSearchRange(searchConditions)
 
-    if (textSearch) {
-      const formattedTextSearch = formatTextSearch(column, searchConditions)
-      if (range) {
-        const sqlText = getLengthOfIlikeArgs(formattedTextSearch.length)
-        return prev.whereRaw(sqlText, formattedTextSearch)
-      } else {
-        return prev.where('title', 'ilike', formattedTextSearch[0])
-      }
-    }
     if (hasNumericSearchType(column)) {
       if (range) {
         return prev.whereBetween(column, searchConditions)
@@ -98,7 +82,16 @@ const withWhereOptions = (query: QueryType) => (whereOptions: WhereOptions) => {
         return prev.where(column, searchConditions[0])
       }
     }
-    throw new Error('whoops!')
+    const formattedTextSearch = formatTextSearch(column, searchConditions)
+    if (range) {
+      const sqlText = getLengthOfIlikeArgs(formattedTextSearch.length)
+      return prev.whereRaw(sqlText, formattedTextSearch)
+    } else {
+      // convert 'titleContains' type queries to 'title'
+      // and keep column name for other types
+      const columnName = column.includes('title') ? 'title' : column
+      return prev.where(columnName, 'ilike', formattedTextSearch[0])
+    }
   }, newQuery)
 }
 
@@ -135,10 +128,10 @@ type ColumnGrouping =
   | 'publisher'
   | 'year_of_release'
 
-//  generate sql through function call each time to avoid closure state updates
+//  query to investiagte game sales with custom grouping by and where options
 const querySalesBy = (groupByColumn: ColumnGrouping) => () =>
   knex('games')
-    .select(groupByColumn)
+    .select(groupByColumn) // .select(groupByColumn, secondGrouping)
     .sum({
       global_sales: 'global_sales',
       na_sales: 'na_sales',
@@ -146,28 +139,26 @@ const querySalesBy = (groupByColumn: ColumnGrouping) => () =>
       jp_sales: 'jp_sales',
       other_sales: 'other_sales',
     })
-    .groupBy(groupByColumn)
-    .orderBy('global_sales', 'desc')
+    .groupBy(groupByColumn) //.groupBy(groupByColumn, secondGrouping)
+    .orderBy('global_sales', 'desc') //.orderBy(... maybe leave as is)
 
 type ScoreType = 'critic_score' | 'user_score'
 
+// query to return games ordered by score
 const queryByScore = (scoreType: ScoreType) => () =>
   knex('games').select().whereNotNull(scoreType).orderBy(scoreType, 'desc')
 
+// query to return games ordered by global sales
 const queryEachTitleVersionBy = () =>
   knex('games').select().orderBy('global_sales', 'desc')
 
+// query to return raw list of games, not ordered by sales
 const queryGamesListBy = () => knex('games').select()
 
-/* --------------- export formatted queries without pagination -------------- */
-
-// update to remove pagination
-export const genreQuery = withWhereOptions(querySalesBy('genre'))
-export const ratingQuery = withWhereOptions(querySalesBy('rating'))
-export const consoleQuery = withWhereOptions(querySalesBy('console'))
-
 /* ---------------- export formatted queries with pagination ---------------- */
-
+export const genreQuery = withPaginatedWhereOptions(querySalesBy('genre'))
+export const ratingQuery = withPaginatedWhereOptions(querySalesBy('rating'))
+export const consoleQuery = withPaginatedWhereOptions(querySalesBy('console'))
 export const crossPlatformTitleQuery = withPaginatedWhereOptions(
   querySalesBy('title')
 )

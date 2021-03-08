@@ -24,15 +24,39 @@ export class GenreSales extends CombinedSales {
 }
 
 @ObjectType()
+export class PaginatedGenreSales {
+  @Field(() => [GenreSales])
+  rows: GenreSales[]
+  @Field()
+  hasMore: boolean
+}
+
+@ObjectType()
 export class ConsoleGameSales extends CombinedSales {
   @Field()
-  console!: string
+  console: string
+}
+
+@ObjectType()
+export class PaginatedConsoleGameSales {
+  @Field(() => [ConsoleGameSales])
+  rows: ConsoleGameSales[]
+  @Field()
+  hasMore: boolean
 }
 
 @ObjectType()
 export class RatingSales extends CombinedSales {
   @Field({ nullable: true })
   rating: string
+}
+
+@ObjectType()
+export class PaginatedRatingSales {
+  @Field(() => [RatingSales])
+  rows: RatingSales[]
+  @Field()
+  hasMore: boolean
 }
 
 /* -------------------- response fields with pagination -------------------- */

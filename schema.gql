@@ -63,6 +63,11 @@ type GenreSales {
   other_sales: Float!
 }
 
+type PaginatedConsoleGameSales {
+  hasMore: Boolean!
+  rows: [ConsoleGameSales!]!
+}
+
 type PaginatedCrossPlatformSales {
   hasMore: Boolean!
   rows: [CrossPlatformSales!]!
@@ -73,9 +78,19 @@ type PaginatedGames {
   rows: [GAMES!]!
 }
 
+type PaginatedGenreSales {
+  hasMore: Boolean!
+  rows: [GenreSales!]!
+}
+
 type PaginatedPublisherSales {
   hasMore: Boolean!
   rows: [PublisherSales!]!
+}
+
+type PaginatedRatingSales {
+  hasMore: Boolean!
+  rows: [RatingSales!]!
 }
 
 input PaginatedWhereOptions {
@@ -104,11 +119,11 @@ type Query {
   games(options: PaginatedWhereOptions!): PaginatedGames!
   highestCriticScores(options: PaginatedWhereOptions!): PaginatedGames!
   highestUserScores(options: PaginatedWhereOptions!): PaginatedGames!
-  salesByConsole(where: WhereOptions!): [ConsoleGameSales!]!
+  salesByConsole(options: PaginatedWhereOptions!): PaginatedConsoleGameSales!
   salesByCrossPlatformTitles(options: PaginatedWhereOptions!): PaginatedCrossPlatformSales!
-  salesByGenre(where: WhereOptions!): [GenreSales!]!
+  salesByGenre(options: PaginatedWhereOptions!): PaginatedGenreSales!
   salesByPublisher(options: PaginatedWhereOptions!): PaginatedPublisherSales!
-  salesByRating(where: WhereOptions!): [RatingSales!]!
+  salesByRating(options: PaginatedWhereOptions!): PaginatedRatingSales!
   salesByTitles(options: PaginatedWhereOptions!): PaginatedGames!
   salesByYear(options: PaginatedWhereOptions!): PaginatedYearSales!
 }
