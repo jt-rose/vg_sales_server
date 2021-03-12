@@ -55,13 +55,13 @@ const formatTextSearch = (searchType: string, searchConditions: string[]) => {
 const getLengthOfIlikeArgs = (length: number) => {
   switch (length) {
     case 2:
-      return 'title ilike any(array[?, ?])'
+      return '?? ilike any(array[?, ?])'
     case 3:
-      return 'title ilike any(array[?, ?, ?])'
+      return '?? ilike any(array[?, ?, ?])'
     case 4:
-      return 'title ilike any(array[?, ?, ?, ?])'
+      return '?? ilike any(array[?, ?, ?, ?])'
     case 5:
-      return 'title ilike any(array[?, ?, ?, ?, ?])'
+      return '?? ilike any(array[?, ?, ?, ?, ?])'
     default:
       throw new Error('no more than 5 arguments may be provided')
   }
@@ -83,14 +83,14 @@ const withQueryOptions = (query: QueryType) => (options: QueryOptions) => {
         return prev.where(column, searchConditions[0])
       }
     }
+    // convert 'titleContains' type queries to 'title'
+    // and keep column name for other types
+    const columnName = column.includes('title') ? 'title' : column
     const formattedTextSearch = formatTextSearch(column, searchConditions)
     if (range) {
       const sqlText = getLengthOfIlikeArgs(formattedTextSearch.length)
-      return prev.whereRaw(sqlText, formattedTextSearch)
+      return prev.whereRaw(sqlText, [columnName, ...formattedTextSearch])
     } else {
-      // convert 'titleContains' type queries to 'title'
-      // and keep column name for other types
-      const columnName = column.includes('title') ? 'title' : column
       return prev.where(columnName, 'ilike', formattedTextSearch[0])
     }
   }, newQuery)
@@ -145,7 +145,7 @@ const querySalesBy = (groupByColumn: ColumnGrouping) => (
     })
     .groupBy(groupByColumns) //.groupBy(groupByColumn, secondGrouping)
     .orderBy([{ column: 'global_sales', order: 'desc' }, ...groupByColumns]) //.orderBy(... maybe leave as is)
-  // allow custom ordering from ui?
+  // allow custom ordering from ui? -- yes, important for pagination/ search flexibility
 }
 
 type ScoreType = 'critic_score' | 'user_score'
