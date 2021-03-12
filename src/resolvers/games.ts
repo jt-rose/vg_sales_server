@@ -1,5 +1,5 @@
 import { Resolver, Query, Arg } from 'type-graphql'
-import { PaginatedWhereOptions } from '../fields/QUERY_OPTIONS'
+import { PaginatedQueryOptions } from '../fields/QUERY_OPTIONS'
 import {
   PaginatedGames,
   PaginatedCrossPlatformSales,
@@ -26,7 +26,7 @@ import {
 export class Games {
   @Query(() => PaginatedGames)
   async games(
-    @Arg('options', () => PaginatedWhereOptions) options: PaginatedWhereOptions
+    @Arg('options', () => PaginatedQueryOptions) options: PaginatedQueryOptions
   ) {
     return gamesListQuery(options)
   }
@@ -34,35 +34,35 @@ export class Games {
   // not combining sales of a single title across consoles/ PC - add later
   @Query(() => PaginatedGames)
   async salesByTitles(
-    @Arg('options', () => PaginatedWhereOptions) options: PaginatedWhereOptions
+    @Arg('options', () => PaginatedQueryOptions) options: PaginatedQueryOptions
   ) {
     return eachTitleVersionQuery(options)
   }
 
   @Query(() => PaginatedCrossPlatformSales)
   async salesByCrossPlatformTitles(
-    @Arg('options', () => PaginatedWhereOptions) options: PaginatedWhereOptions
+    @Arg('options', () => PaginatedQueryOptions) options: PaginatedQueryOptions
   ) {
     return crossPlatformTitleQuery(options)
   }
 
   @Query(() => PaginatedGenreSales)
   async salesByGenre(
-    @Arg('options', () => PaginatedWhereOptions) options: PaginatedWhereOptions
+    @Arg('options', () => PaginatedQueryOptions) options: PaginatedQueryOptions
   ) {
     return genreQuery(options)
   }
 
   @Query(() => PaginatedYearSales)
   async salesByYear(
-    @Arg('options', () => PaginatedWhereOptions) options: PaginatedWhereOptions
+    @Arg('options', () => PaginatedQueryOptions) options: PaginatedQueryOptions
   ) {
     return yearOfReleaseQuery(options)
   }
 
   @Query(() => PaginatedPublisherSales)
   async salesByPublisher(
-    @Arg('options', () => PaginatedWhereOptions) options: PaginatedWhereOptions
+    @Arg('options', () => PaginatedQueryOptions) options: PaginatedQueryOptions
   ) {
     return PublisherQuery(options)
   }
@@ -70,7 +70,7 @@ export class Games {
   // this is for games sold per console, not console sales themselves
   @Query(() => PaginatedConsoleGameSales)
   async salesByConsole(
-    @Arg('options', () => PaginatedWhereOptions) options: PaginatedWhereOptions
+    @Arg('options', () => PaginatedQueryOptions) options: PaginatedQueryOptions
   ) {
     return consoleQuery(options)
   }
@@ -79,21 +79,21 @@ export class Games {
 
   @Query(() => PaginatedRatingSales)
   async salesByRating(
-    @Arg('options', () => PaginatedWhereOptions) options: PaginatedWhereOptions
+    @Arg('options', () => PaginatedQueryOptions) options: PaginatedQueryOptions
   ) {
     return ratingQuery(options)
   }
 
   @Query(() => PaginatedGames)
   async highestCriticScores(
-    @Arg('options', () => PaginatedWhereOptions) options: PaginatedWhereOptions
+    @Arg('options', () => PaginatedQueryOptions) options: PaginatedQueryOptions
   ) {
     return criticScoreQuery(options)
   }
 
   @Query(() => PaginatedGames)
   async highestUserScores(
-    @Arg('options', () => PaginatedWhereOptions) options: PaginatedWhereOptions
+    @Arg('options', () => PaginatedQueryOptions) options: PaginatedQueryOptions
   ) {
     return userScoreQuery(options)
   }

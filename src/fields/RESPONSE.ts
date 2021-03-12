@@ -1,10 +1,21 @@
 import { ObjectType, Field, Float, Int } from 'type-graphql'
 import { GAMES } from './GAMES'
 
-/* ------------------- response fields without pagination ------------------ */
+/* ------------------- paginated response without grouping ------------------ */
 
 @ObjectType()
-class CombinedSales {
+export class PaginatedGames {
+  @Field(() => [GAMES])
+  rows!: GAMES[]
+  @Field()
+  hasMore!: boolean
+}
+
+/* ------------------- paginated response grouped by sales ------------------ */
+
+@ObjectType()
+class GroupByQueryResponse {
+  // sales groupings, always returned
   @Field(() => Float)
   global_sales!: number
   @Field(() => Float)
@@ -15,10 +26,23 @@ class CombinedSales {
   jp_sales!: number
   @Field(() => Float)
   other_sales!: number
+  // optional group by columns
+  @Field({ nullable: true })
+  console?: string
+  @Field(() => Int, { nullable: true })
+  year_of_release?: number
+  @Field({ nullable: true })
+  genre?: string
+  @Field(() => String, { nullable: true })
+  rating?: string | null
+  @Field({ nullable: true })
+  publisher?: string
 }
 
+/* ---------------- mark specific group by fields as required --------------- */
+
 @ObjectType()
-export class GenreSales extends CombinedSales {
+export class GenreSales extends GroupByQueryResponse {
   @Field()
   genre!: string
 }
@@ -26,51 +50,41 @@ export class GenreSales extends CombinedSales {
 @ObjectType()
 export class PaginatedGenreSales {
   @Field(() => [GenreSales])
-  rows: GenreSales[]
+  rows!: GenreSales[]
   @Field()
-  hasMore: boolean
+  hasMore!: boolean
 }
 
 @ObjectType()
-export class ConsoleGameSales extends CombinedSales {
+export class ConsoleGameSales extends GroupByQueryResponse {
   @Field()
-  console: string
+  console!: string
 }
 
 @ObjectType()
 export class PaginatedConsoleGameSales {
   @Field(() => [ConsoleGameSales])
-  rows: ConsoleGameSales[]
+  rows!: ConsoleGameSales[]
   @Field()
-  hasMore: boolean
+  hasMore!: boolean
 }
 
 @ObjectType()
-export class RatingSales extends CombinedSales {
-  @Field({ nullable: true })
-  rating: string
+export class RatingSales extends GroupByQueryResponse {
+  @Field(() => String, { nullable: true })
+  rating!: string | null
 }
 
 @ObjectType()
 export class PaginatedRatingSales {
   @Field(() => [RatingSales])
-  rows: RatingSales[]
+  rows!: RatingSales[]
   @Field()
-  hasMore: boolean
-}
-
-/* -------------------- response fields with pagination -------------------- */
-
-@ObjectType()
-export class PaginatedGames {
-  @Field(() => [GAMES])
-  rows: GAMES[]
-  @Field()
-  hasMore: boolean
+  hasMore!: boolean
 }
 
 @ObjectType()
-class CrossPlatformSales extends CombinedSales {
+class CrossPlatformSales extends GroupByQueryResponse {
   @Field()
   title!: string
 }
@@ -78,13 +92,13 @@ class CrossPlatformSales extends CombinedSales {
 @ObjectType()
 export class PaginatedCrossPlatformSales {
   @Field(() => [CrossPlatformSales])
-  rows: CrossPlatformSales[]
+  rows!: CrossPlatformSales[]
   @Field()
-  hasMore: boolean
+  hasMore!: boolean
 }
 
 @ObjectType()
-class YearSales extends CombinedSales {
+class YearSales extends GroupByQueryResponse {
   @Field(() => Int)
   year_of_release!: number
 }
@@ -92,13 +106,13 @@ class YearSales extends CombinedSales {
 @ObjectType()
 export class PaginatedYearSales {
   @Field(() => [YearSales])
-  rows: YearSales[]
+  rows!: YearSales[]
   @Field()
-  hasMore: boolean
+  hasMore!: boolean
 }
 
 @ObjectType()
-class PublisherSales extends CombinedSales {
+class PublisherSales extends GroupByQueryResponse {
   @Field()
   publisher!: string
 }
@@ -106,7 +120,7 @@ class PublisherSales extends CombinedSales {
 @ObjectType()
 export class PaginatedPublisherSales {
   @Field(() => [PublisherSales])
-  rows: PublisherSales[]
+  rows!: PublisherSales[]
   @Field()
-  hasMore: boolean
+  hasMore!: boolean
 }

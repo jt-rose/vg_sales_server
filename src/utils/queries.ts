@@ -1,6 +1,6 @@
+import { PaginatedQueryOptions, QueryOptions } from './../fields/QUERY_OPTIONS'
 import dotenv from 'dotenv'
 import Knex from 'knex'
-import { WhereOptions, PaginatedWhereOptions } from '../fields/QUERY_OPTIONS'
 
 dotenv.config()
 
@@ -67,14 +67,15 @@ const getLengthOfIlikeArgs = (length: number) => {
   }
 }
 
-const withWhereOptions = (query: QueryType) => (whereOptions: WhereOptions) => {
-  const newQuery = query()
-  const optionsArray = Object.entries(whereOptions)
+const withQueryOptions = (query: QueryType) => (options: QueryOptions) => {
+  const newQuery = query(options.groupBy)
+  const optionsArray = Object.entries(options.where)
 
   return optionsArray.reduce((prev, current) => {
     const [column, searchConditions] = current
     const range = hasSearchRange(searchConditions)
 
+    // may adjust group by queries to use 'having' if perf issues
     if (hasNumericSearchType(column)) {
       if (range) {
         return prev.whereBetween(column, searchConditions)
@@ -96,15 +97,15 @@ const withWhereOptions = (query: QueryType) => (whereOptions: WhereOptions) => {
 }
 
 // apply pagination to queries with where options
-const withPaginatedWhereOptions = (query: QueryType) => async (
-  options: PaginatedWhereOptions
+const withPaginatedQueryOptions = (query: QueryType) => async (
+  options: PaginatedQueryOptions
 ) => {
-  const { where, limit, offset } = options
+  const { where, groupBy, limit, offset } = options
   // get real limit from user-submitted limit
   const realLimit = Math.min(50, limit)
 
   // run query with limit and offset
-  const res = await withWhereOptions(query)(where)
+  const res = await withQueryOptions(query)({ where, groupBy })
     .limit(realLimit + 1)
     .offset(offset)
 
@@ -129,9 +130,12 @@ type ColumnGrouping =
   | 'year_of_release'
 
 //  query to investiagte game sales with custom grouping by and where options
-const querySalesBy = (groupByColumn: ColumnGrouping) => () =>
-  knex('games')
-    .select(groupByColumn) // .select(groupByColumn, secondGrouping)
+const querySalesBy = (groupByColumn: ColumnGrouping) => (
+  groupBy: string[] = []
+) => {
+  const groupByColumns = [...groupBy, groupByColumn]
+  return knex('games')
+    .select(groupByColumns) // .select(groupByColumn, secondGrouping)
     .sum({
       global_sales: 'global_sales',
       na_sales: 'na_sales',
@@ -139,46 +143,60 @@ const querySalesBy = (groupByColumn: ColumnGrouping) => () =>
       jp_sales: 'jp_sales',
       other_sales: 'other_sales',
     })
-    .groupBy(groupByColumn) //.groupBy(groupByColumn, secondGrouping)
-    .orderBy('global_sales', 'desc') //.orderBy(... maybe leave as is)
+    .groupBy(groupByColumns) //.groupBy(groupByColumn, secondGrouping)
+    .orderBy([{ column: 'global_sales', order: 'desc' }, ...groupByColumns]) //.orderBy(... maybe leave as is)
+  // allow custom ordering from ui?
+}
 
 type ScoreType = 'critic_score' | 'user_score'
+type OrderByArgs = (string | { column: string; order?: string })[] // add enums
 
 // query to return games ordered by score
-const queryByScore = (scoreType: ScoreType) => () =>
-  knex('games').select().whereNotNull(scoreType).orderBy(scoreType, 'desc')
+const queryByScore = (scoreType: ScoreType) => (orderBy: OrderByArgs = []) => {
+  const orderByArgs = [...orderBy, { column: scoreType, order: 'desc' }]
+  return knex('games')
+    .select()
+    .whereNotNull(scoreType)
+    .orderBy(orderByArgs /*scoreType, 'desc'*/)
+}
 
 // query to return games ordered by global sales
-const queryEachTitleVersionBy = () =>
-  knex('games').select().orderBy('global_sales', 'desc')
+const queryEachTitleVersionBy = (orderBy: OrderByArgs = []) => {
+  const orderByArgs = [...orderBy, { column: 'global_sales', order: 'desc' }]
+  return knex('games').select().orderBy(orderByArgs)
+}
 
 // query to return raw list of games, not ordered by sales
-const queryGamesListBy = () => knex('games').select()
+const queryGamesListBy = (orderBy: OrderByArgs = []) => {
+  return orderBy
+    ? knex('games').select().orderBy(orderBy)
+    : knex('games').select()
+}
 
 /* ---------------- export formatted queries with pagination ---------------- */
-export const genreQuery = withPaginatedWhereOptions(querySalesBy('genre'))
-export const ratingQuery = withPaginatedWhereOptions(querySalesBy('rating'))
-export const consoleQuery = withPaginatedWhereOptions(querySalesBy('console'))
-export const crossPlatformTitleQuery = withPaginatedWhereOptions(
+export const genreQuery = withPaginatedQueryOptions(querySalesBy('genre'))
+export const ratingQuery = withPaginatedQueryOptions(querySalesBy('rating'))
+export const consoleQuery = withPaginatedQueryOptions(querySalesBy('console'))
+export const crossPlatformTitleQuery = withPaginatedQueryOptions(
   querySalesBy('title')
 )
-export const PublisherQuery = withPaginatedWhereOptions(
+export const PublisherQuery = withPaginatedQueryOptions(
   querySalesBy('publisher')
 )
-export const yearOfReleaseQuery = withPaginatedWhereOptions(
+export const yearOfReleaseQuery = withPaginatedQueryOptions(
   querySalesBy('year_of_release')
 )
 
-export const criticScoreQuery = withPaginatedWhereOptions(
+export const criticScoreQuery = withPaginatedQueryOptions(
   queryByScore('critic_score')
 )
-export const userScoreQuery = withPaginatedWhereOptions(
+export const userScoreQuery = withPaginatedQueryOptions(
   queryByScore('user_score')
 )
-export const eachTitleVersionQuery = withPaginatedWhereOptions(
+export const eachTitleVersionQuery = withPaginatedQueryOptions(
   queryEachTitleVersionBy
 )
-export const gamesListQuery = withPaginatedWhereOptions(queryGamesListBy)
+export const gamesListQuery = withPaginatedQueryOptions(queryGamesListBy)
 
 //https://www.kaggle.com/juttugarakesh/video-game-data
 // victory urql

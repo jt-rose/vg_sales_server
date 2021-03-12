@@ -49,8 +49,8 @@ export class WhereOptions {
 export class QueryOptions {
   @Field(() => WhereOptions)
   where: WhereOptions // optional?
-  @Field() // enums?
-  groupBy: 'year_of_release' | 'genre' // etc. // optional?
+  @Field(() => [String], { nullable: true }) // enums?
+  groupBy?: ('year_of_release' | 'genre')[] // etc. // optional?
   // validate groupBy if no enums?
 }
 

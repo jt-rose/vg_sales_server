@@ -19,19 +19,28 @@ type CONSOLE_MAKERS {
 type ConsoleGameSales {
   console: String!
   eu_sales: Float!
+  genre: String
   global_sales: Float!
   jp_sales: Float!
   na_sales: Float!
   other_sales: Float!
+  publisher: String
+  rating: String
+  year_of_release: Int
 }
 
 type CrossPlatformSales {
+  console: String
   eu_sales: Float!
+  genre: String
   global_sales: Float!
   jp_sales: Float!
   na_sales: Float!
   other_sales: Float!
+  publisher: String
+  rating: String
   title: String!
+  year_of_release: Int
 }
 
 type GAMES {
@@ -55,12 +64,16 @@ type GAMES {
 }
 
 type GenreSales {
+  console: String
   eu_sales: Float!
   genre: String!
   global_sales: Float!
   jp_sales: Float!
   na_sales: Float!
   other_sales: Float!
+  publisher: String
+  rating: String
+  year_of_release: Int
 }
 
 type PaginatedConsoleGameSales {
@@ -88,15 +101,16 @@ type PaginatedPublisherSales {
   rows: [PublisherSales!]!
 }
 
+input PaginatedQueryOptions {
+  groupBy: [String!]
+  limit: Int!
+  offset: Int!
+  where: WhereOptions!
+}
+
 type PaginatedRatingSales {
   hasMore: Boolean!
   rows: [RatingSales!]!
-}
-
-input PaginatedWhereOptions {
-  limit: Int!
-  offset: Int!
-  where: WhereOptions
 }
 
 type PaginatedYearSales {
@@ -105,36 +119,44 @@ type PaginatedYearSales {
 }
 
 type PublisherSales {
+  console: String
   eu_sales: Float!
+  genre: String
   global_sales: Float!
   jp_sales: Float!
   na_sales: Float!
   other_sales: Float!
   publisher: String!
+  rating: String
+  year_of_release: Int
 }
 
 type Query {
   consoleMakers: [CONSOLE_MAKERS!]!
   consoles: [CONSOLES!]!
-  games(options: PaginatedWhereOptions!): PaginatedGames!
-  highestCriticScores(options: PaginatedWhereOptions!): PaginatedGames!
-  highestUserScores(options: PaginatedWhereOptions!): PaginatedGames!
-  salesByConsole(options: PaginatedWhereOptions!): PaginatedConsoleGameSales!
-  salesByCrossPlatformTitles(options: PaginatedWhereOptions!): PaginatedCrossPlatformSales!
-  salesByGenre(options: PaginatedWhereOptions!): PaginatedGenreSales!
-  salesByPublisher(options: PaginatedWhereOptions!): PaginatedPublisherSales!
-  salesByRating(options: PaginatedWhereOptions!): PaginatedRatingSales!
-  salesByTitles(options: PaginatedWhereOptions!): PaginatedGames!
-  salesByYear(options: PaginatedWhereOptions!): PaginatedYearSales!
+  games(options: PaginatedQueryOptions!): PaginatedGames!
+  highestCriticScores(options: PaginatedQueryOptions!): PaginatedGames!
+  highestUserScores(options: PaginatedQueryOptions!): PaginatedGames!
+  salesByConsole(options: PaginatedQueryOptions!): PaginatedConsoleGameSales!
+  salesByCrossPlatformTitles(options: PaginatedQueryOptions!): PaginatedCrossPlatformSales!
+  salesByGenre(options: PaginatedQueryOptions!): PaginatedGenreSales!
+  salesByPublisher(options: PaginatedQueryOptions!): PaginatedPublisherSales!
+  salesByRating(options: PaginatedQueryOptions!): PaginatedRatingSales!
+  salesByTitles(options: PaginatedQueryOptions!): PaginatedGames!
+  salesByYear(options: PaginatedQueryOptions!): PaginatedYearSales!
 }
 
 type RatingSales {
+  console: String
   eu_sales: Float!
+  genre: String
   global_sales: Float!
   jp_sales: Float!
   na_sales: Float!
   other_sales: Float!
+  publisher: String
   rating: String
+  year_of_release: Int
 }
 
 input WhereOptions {
@@ -158,10 +180,14 @@ input WhereOptions {
 }
 
 type YearSales {
+  console: String
   eu_sales: Float!
+  genre: String
   global_sales: Float!
   jp_sales: Float!
   na_sales: Float!
   other_sales: Float!
+  publisher: String
+  rating: String
   year_of_release: Int!
 }
