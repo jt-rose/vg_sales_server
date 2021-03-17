@@ -1,4 +1,10 @@
-import { PaginatedQueryOptions, QueryOptions } from './../fields/QUERY_OPTIONS'
+import {
+  PaginatedQueryOptions,
+  QueryOptions,
+  GroupByColumn,
+  GroupAndOrderSettings,
+  /*OrderByColumn,*/
+} from './../fields/QUERY_OPTIONS'
 import dotenv from 'dotenv'
 import Knex from 'knex'
 
@@ -11,6 +17,91 @@ export const knex = Knex({
   connection: process.env.DATABASE_URL,
 })
 
+/* --------------------------- SQL query templates -------------------------- */
+
+// the following are sql queries that allow the user to define
+// what columns to group and order by, as well as any 'where'
+// conditions to limit the query by
+
+/*
+// format orderBy options
+const formatOrderByArgs = (orderBy: OrderByColumn[]) => {
+  if (orderBy.length) {
+    return orderBy.map((column) =>
+      ['desc order by options - add later'].includes(column)
+        ? { column, order: 'desc' }
+        : column
+    )
+  }
+  return [{ column: 'global_sales', order: 'desc' }]
+}
+*/
+
+//  query to investigate game sales
+// the first group by setting is curried
+// to allow some basic templates be provided to the user
+// ex: query sales by genre, console, publisher, etc.
+
+// the user can then provide further group by options
+// ex: group sales by genre across consoles, etc.
+
+// lastly, to find sales of games released across different
+// versions, such as multiple consoles, we can simply group by title
+
+const querySalesBy = (groupByColumn: GroupByColumn) => (
+  options: GroupAndOrderSettings
+) => {
+  const { groupBy, orderBy } = options
+  // set up list of columns to group and order by
+  const groupByColumns = [...groupBy, groupByColumn]
+  const orderByColumns = orderBy.length
+    ? orderBy
+    : [{ column: 'global_sales', order: 'desc' }, ...groupByColumns]
+
+  // return customized query focusing on game sales
+  return knex('games')
+    .select(groupByColumns)
+    .sum({
+      global_sales: 'global_sales',
+      na_sales: 'na_sales',
+      eu_sales: 'eu_sales',
+      jp_sales: 'jp_sales',
+      other_sales: 'other_sales',
+    })
+    .groupBy(groupByColumns)
+    .orderBy(orderByColumns)
+}
+
+// query to return games ordered by score
+const queryByScore = (scoreType: 'critic_score' | 'user_score') => (
+  options: GroupAndOrderSettings
+) => {
+  const orderByArgs = [...options.orderBy, { column: scoreType, order: 'desc' }]
+  // note: may allow for score type ordering to be specified exactly
+  // rather than defaulting to last place
+  return knex('games')
+    .select()
+    .whereNotNull(scoreType)
+    .orderBy(orderByArgs /*scoreType, 'desc'*/)
+}
+
+// query to return games ordered directly by global sales
+// counting different console releases of same titles as unique items
+const queryEachTitleVersionBy = (options: GroupAndOrderSettings) => {
+  const orderByArgs = [
+    ...options.orderBy,
+    { column: 'global_sales', order: 'desc' },
+  ]
+  return knex('games').select().orderBy(orderByArgs)
+}
+
+// query to return raw list of games, not ordered by sales
+const queryGamesListBy = (options: GroupAndOrderSettings) => {
+  return options.orderBy
+    ? knex('games').select().orderBy(options.orderBy)
+    : knex('games').select()
+}
+
 /* ------------------- where filters and pagination logic ------------------- */
 
 type QueryType =
@@ -19,12 +110,7 @@ type QueryType =
   | typeof queryEachTitleVersionBy
   | typeof queryGamesListBy
 
-// HOF to apply 'where'  options to knex queries
-
-// due to issues with a possible closure updating the knex sequence
-// the query needs to be initialized through a function each time
-// rather than just stored directly in a variable
-
+// utility functions to differentiate different types of 'where' options
 const hasNumericSearchType = (whereColumn: string) =>
   [
     'year_of_release',
@@ -67,15 +153,21 @@ const getLengthOfIlikeArgs = (length: number) => {
   }
 }
 
+// HOF to apply 'where'  options to knex queries
 const withQueryOptions = (query: QueryType) => (options: QueryOptions) => {
-  const newQuery = query(options.groupBy)
+  // format query with group and order by options
+  const { groupBy, orderBy } = options
+  const groupOptions = new GroupAndOrderSettings({ groupBy, orderBy })
+  const newQuery = query(groupOptions)
+
+  // apply 'where' options to formatted query
   const optionsArray = Object.entries(options.where)
 
   return optionsArray.reduce((prev, current) => {
     const [column, searchConditions] = current
     const range = hasSearchRange(searchConditions)
 
-    // may adjust group by queries to use 'having' if perf issues
+    // note: may adjust group by queries to use 'having' if perf issues
     if (hasNumericSearchType(column)) {
       if (range) {
         return prev.whereBetween(column, searchConditions)
@@ -96,16 +188,17 @@ const withQueryOptions = (query: QueryType) => (options: QueryOptions) => {
   }, newQuery)
 }
 
-// apply pagination to queries with where options
+/* ------------- apply pagination to queries with where options ------------- */
+
 const withPaginatedQueryOptions = (query: QueryType) => async (
   options: PaginatedQueryOptions
 ) => {
-  const { where, groupBy, limit, offset } = options
+  const { where, groupBy, orderBy, limit, offset } = options
   // get real limit from user-submitted limit
   const realLimit = Math.min(50, limit)
 
   // run query with limit and offset
-  const res = await withQueryOptions(query)({ where, groupBy })
+  const res = await withQueryOptions(query)({ where, groupBy, orderBy })
     .limit(realLimit + 1)
     .offset(offset)
 
@@ -117,60 +210,6 @@ const withPaginatedQueryOptions = (query: QueryType) => async (
     rows: res.slice(0, realLimit),
     hasMore,
   }
-}
-
-/* --------------------------- SQL query templates -------------------------- */
-
-type ColumnGrouping =
-  | 'genre'
-  | 'rating'
-  | 'console'
-  | 'title'
-  | 'publisher'
-  | 'year_of_release'
-
-//  query to investiagte game sales with custom grouping by and where options
-const querySalesBy = (groupByColumn: ColumnGrouping) => (
-  groupBy: string[] = []
-) => {
-  const groupByColumns = [...groupBy, groupByColumn]
-  return knex('games')
-    .select(groupByColumns) // .select(groupByColumn, secondGrouping)
-    .sum({
-      global_sales: 'global_sales',
-      na_sales: 'na_sales',
-      eu_sales: 'eu_sales',
-      jp_sales: 'jp_sales',
-      other_sales: 'other_sales',
-    })
-    .groupBy(groupByColumns) //.groupBy(groupByColumn, secondGrouping)
-    .orderBy([{ column: 'global_sales', order: 'desc' }, ...groupByColumns]) //.orderBy(... maybe leave as is)
-  // allow custom ordering from ui? -- yes, important for pagination/ search flexibility
-}
-
-type ScoreType = 'critic_score' | 'user_score'
-type OrderByArgs = (string | { column: string; order?: string })[] // add enums
-
-// query to return games ordered by score
-const queryByScore = (scoreType: ScoreType) => (orderBy: OrderByArgs = []) => {
-  const orderByArgs = [...orderBy, { column: scoreType, order: 'desc' }]
-  return knex('games')
-    .select()
-    .whereNotNull(scoreType)
-    .orderBy(orderByArgs /*scoreType, 'desc'*/)
-}
-
-// query to return games ordered by global sales
-const queryEachTitleVersionBy = (orderBy: OrderByArgs = []) => {
-  const orderByArgs = [...orderBy, { column: 'global_sales', order: 'desc' }]
-  return knex('games').select().orderBy(orderByArgs)
-}
-
-// query to return raw list of games, not ordered by sales
-const queryGamesListBy = (orderBy: OrderByArgs = []) => {
-  return orderBy
-    ? knex('games').select().orderBy(orderBy)
-    : knex('games').select()
 }
 
 /* ---------------- export formatted queries with pagination ---------------- */

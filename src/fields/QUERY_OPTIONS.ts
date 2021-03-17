@@ -1,5 +1,27 @@
 import { InputType, Field, Int, Float } from 'type-graphql'
 
+/* ------------------- user options for generating queries ------------------ */
+
+export type GroupByColumn =
+  | 'genre'
+  | 'rating'
+  | 'console'
+  | 'title'
+  | 'publisher'
+  | 'year_of_release'
+
+export type OrderByColumn = string // update later
+
+export class GroupAndOrderSettings {
+  groupBy: GroupByColumn[] // add undefined and remove constructor?
+  orderBy: OrderByColumn[]
+
+  constructor(options: { groupBy?: GroupByColumn[]; orderBy?: string[] }) {
+    this.groupBy = options.groupBy ?? []
+    this.orderBy = options.orderBy ?? []
+  }
+}
+
 /* ------------------------ filter object for queries ----------------------- */
 
 // input fields shape the sql query, defining optional 'where' clauses
@@ -50,8 +72,12 @@ export class QueryOptions {
   @Field(() => WhereOptions)
   where: WhereOptions // optional?
   @Field(() => [String], { nullable: true }) // enums?
-  groupBy?: ('year_of_release' | 'genre')[] // etc. // optional?
+  groupBy?: GroupByColumn[] //('year_of_release' | 'genre')[] // etc. // optional?
   // validate groupBy if no enums?
+
+  @Field(() => [String], { nullable: true })
+  orderBy?: string[]
+  // validate orderBy
 }
 
 @InputType()
