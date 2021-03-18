@@ -10,16 +10,20 @@ export type GroupByColumn =
   | 'publisher'
   | 'year_of_release'
 
-export type OrderByColumn = string // update later
+@InputType()
+export class OrderByColumn {
+  @Field(() => String)
+  column: keyof Omit<
+    WhereOptions,
+    'titleStartsWith' | 'titleEndsWith' | 'titleContains'
+  >
+  @Field(() => String)
+  order: 'asc' | 'desc'
+}
 
 export class GroupAndOrderSettings {
-  groupBy: GroupByColumn[] // add undefined and remove constructor?
-  orderBy: OrderByColumn[]
-
-  constructor(options: { groupBy?: GroupByColumn[]; orderBy?: string[] }) {
-    this.groupBy = options.groupBy ?? []
-    this.orderBy = options.orderBy ?? []
-  }
+  groupBy?: GroupByColumn[]
+  orderBy?: OrderByColumn[]
 }
 
 /* ------------------------ filter object for queries ----------------------- */
@@ -75,8 +79,8 @@ export class QueryOptions {
   groupBy?: GroupByColumn[] //('year_of_release' | 'genre')[] // etc. // optional?
   // validate groupBy if no enums?
 
-  @Field(() => [String], { nullable: true })
-  orderBy?: string[]
+  @Field(() => [OrderByColumn], { nullable: true })
+  orderBy?: OrderByColumn[]
   // validate orderBy
 }
 

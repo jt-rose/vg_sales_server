@@ -3,6 +3,7 @@ import {
   QueryOptions,
   GroupByColumn,
   GroupAndOrderSettings,
+  OrderByColumn,
   /*OrderByColumn,*/
 } from './../fields/QUERY_OPTIONS'
 import dotenv from 'dotenv'
@@ -22,6 +23,20 @@ export const knex = Knex({
 // the following are sql queries that allow the user to define
 // what columns to group and order by, as well as any 'where'
 // conditions to limit the query by
+
+const formatOrderByArgs = (defaultOrderBy: OrderByColumn) => (
+  orderBy: OrderByColumn[] = []
+) => {
+  // inject default column name if not included in 'orderBy' column names
+  const overrideDefault = orderBy.find(
+    (x) => x.column === defaultOrderBy.column
+  )
+  if (overrideDefault) {
+    return orderBy
+  } else {
+    return [...orderBy, defaultOrderBy]
+  }
+}
 
 /*
 // format orderBy options
@@ -53,10 +68,11 @@ const querySalesBy = (groupByColumn: GroupByColumn) => (
 ) => {
   const { groupBy, orderBy } = options
   // set up list of columns to group and order by
-  const groupByColumns = [...groupBy, groupByColumn]
-  const orderByColumns = orderBy.length
-    ? orderBy
-    : [{ column: 'global_sales', order: 'desc' }, ...groupByColumns]
+  const groupByColumns = groupBy ? [...groupBy, groupByColumn] : [groupByColumn]
+  const orderByColumns = formatOrderByArgs({
+    column: 'global_sales',
+    order: 'desc',
+  })(orderBy)
 
   // return customized query focusing on game sales
   return knex('games')
@@ -76,23 +92,23 @@ const querySalesBy = (groupByColumn: GroupByColumn) => (
 const queryByScore = (scoreType: 'critic_score' | 'user_score') => (
   options: GroupAndOrderSettings
 ) => {
-  const orderByArgs = [...options.orderBy, { column: scoreType, order: 'desc' }]
+  const orderByColumns = formatOrderByArgs({
+    column: scoreType,
+    order: 'desc',
+  })(options.orderBy)
   // note: may allow for score type ordering to be specified exactly
   // rather than defaulting to last place
-  return knex('games')
-    .select()
-    .whereNotNull(scoreType)
-    .orderBy(orderByArgs /*scoreType, 'desc'*/)
+  return knex('games').select().whereNotNull(scoreType).orderBy(orderByColumns)
 }
 
 // query to return games ordered directly by global sales
 // counting different console releases of same titles as unique items
 const queryEachTitleVersionBy = (options: GroupAndOrderSettings) => {
-  const orderByArgs = [
-    ...options.orderBy,
-    { column: 'global_sales', order: 'desc' },
-  ]
-  return knex('games').select().orderBy(orderByArgs)
+  const orderByColumns = formatOrderByArgs({
+    column: 'global_sales',
+    order: 'desc',
+  })(options.orderBy)
+  return knex('games').select().orderBy(orderByColumns)
 }
 
 // query to return raw list of games, not ordered by sales
@@ -156,9 +172,7 @@ const getLengthOfIlikeArgs = (length: number) => {
 // HOF to apply 'where'  options to knex queries
 const withQueryOptions = (query: QueryType) => (options: QueryOptions) => {
   // format query with group and order by options
-  const { groupBy, orderBy } = options
-  const groupOptions = new GroupAndOrderSettings({ groupBy, orderBy })
-  const newQuery = query(groupOptions)
+  const newQuery = query(options)
 
   // apply 'where' options to formatted query
   const optionsArray = Object.entries(options.where)

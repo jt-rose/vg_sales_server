@@ -76,6 +76,11 @@ type GenreSales {
   year_of_release: Int
 }
 
+input OrderByColumn {
+  column: String!
+  order: String!
+}
+
 type PaginatedConsoleGameSales {
   hasMore: Boolean!
   rows: [ConsoleGameSales!]!
@@ -105,7 +110,7 @@ input PaginatedQueryOptions {
   groupBy: [String!]
   limit: Int!
   offset: Int!
-  orderBy: [String!]
+  orderBy: [OrderByColumn!]
   where: WhereOptions!
 }
 
