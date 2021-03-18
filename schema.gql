@@ -16,6 +16,16 @@ type CONSOLE_MAKERS {
   maker: String!
 }
 
+"""The columns that can be used to group the search by"""
+enum Column {
+  CONSOLE
+  GENRE
+  PUBLISHER
+  RATING
+  TITLE
+  YEAR_OF_RELEASE
+}
+
 type ConsoleGameSales {
   console: String!
   eu_sales: Float!
@@ -107,7 +117,7 @@ type PaginatedPublisherSales {
 }
 
 input PaginatedQueryOptions {
-  groupBy: [String!]
+  groupBy: [Column!]
   limit: Int!
   offset: Int!
   orderBy: [OrderByColumn!]

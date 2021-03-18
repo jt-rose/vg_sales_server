@@ -1,14 +1,20 @@
-import { InputType, Field, Int, Float } from 'type-graphql'
+import { InputType, Field, Int, Float, registerEnumType } from 'type-graphql'
 
 /* ------------------- user options for generating queries ------------------ */
 
-export type GroupByColumn =
-  | 'genre'
-  | 'rating'
-  | 'console'
-  | 'title'
-  | 'publisher'
-  | 'year_of_release'
+export enum GroupByColumn {
+  GENRE = 'genre',
+  RATING = 'rating',
+  CONSOLE = 'console',
+  TITLE = 'title',
+  PUBLISHER = 'publisher',
+  YEAR_OF_RELEASE = 'year_of_release',
+}
+
+registerEnumType(GroupByColumn, {
+  name: 'Column',
+  description: 'The columns that can be used to group the search by',
+})
 
 @InputType()
 export class OrderByColumn {
@@ -75,7 +81,7 @@ export class WhereOptions {
 export class QueryOptions {
   @Field(() => WhereOptions)
   where: WhereOptions // optional?
-  @Field(() => [String], { nullable: true }) // enums?
+  @Field(() => [GroupByColumn], { nullable: true }) // enums?
   groupBy?: GroupByColumn[] //('year_of_release' | 'genre')[] // etc. // optional?
   // validate groupBy if no enums?
 

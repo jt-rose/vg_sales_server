@@ -213,17 +213,24 @@ const withPaginatedQueryOptions = (query: QueryType) => async (
 }
 
 /* ---------------- export formatted queries with pagination ---------------- */
-export const genreQuery = withPaginatedQueryOptions(querySalesBy('genre'))
-export const ratingQuery = withPaginatedQueryOptions(querySalesBy('rating'))
-export const consoleQuery = withPaginatedQueryOptions(querySalesBy('console'))
+export const genreQuery = withPaginatedQueryOptions(
+  querySalesBy(/*'genre'*/ GroupByColumn.GENRE)
+)
+export const ratingQuery = withPaginatedQueryOptions(
+  querySalesBy(/*'rating'*/ GroupByColumn.RATING)
+)
+export const consoleQuery = withPaginatedQueryOptions(
+  querySalesBy(/*'console'*/ GroupByColumn.CONSOLE)
+)
 export const crossPlatformTitleQuery = withPaginatedQueryOptions(
-  querySalesBy('title')
+  querySalesBy(/*'title'*/ GroupByColumn.TITLE)
 )
 export const PublisherQuery = withPaginatedQueryOptions(
-  querySalesBy('publisher')
+  querySalesBy(/*'publisher'*/ GroupByColumn.PUBLISHER)
 )
+
 export const yearOfReleaseQuery = withPaginatedQueryOptions(
-  querySalesBy('year_of_release')
+  querySalesBy(/*'year_of_release'*/ GroupByColumn.YEAR_OF_RELEASE)
 )
 
 export const criticScoreQuery = withPaginatedQueryOptions(
