@@ -4,7 +4,6 @@ import {
   GroupByColumn,
   GroupAndOrderSettings,
   OrderByColumn,
-  /*OrderByColumn,*/
 } from './../fields/QUERY_OPTIONS'
 import dotenv from 'dotenv'
 import Knex from 'knex'
@@ -24,6 +23,7 @@ export const knex = Knex({
 // what columns to group and order by, as well as any 'where'
 // conditions to limit the query by
 
+// format user-defined order by sorting
 const formatOrderByArgs = (defaultOrderBy: OrderByColumn) => (
   orderBy: OrderByColumn[] = []
 ) => {
@@ -37,20 +37,6 @@ const formatOrderByArgs = (defaultOrderBy: OrderByColumn) => (
     return [...orderBy, defaultOrderBy]
   }
 }
-
-/*
-// format orderBy options
-const formatOrderByArgs = (orderBy: OrderByColumn[]) => {
-  if (orderBy.length) {
-    return orderBy.map((column) =>
-      ['desc order by options - add later'].includes(column)
-        ? { column, order: 'desc' }
-        : column
-    )
-  }
-  return [{ column: 'global_sales', order: 'desc' }]
-}
-*/
 
 //  query to investigate game sales
 // the first group by setting is curried
