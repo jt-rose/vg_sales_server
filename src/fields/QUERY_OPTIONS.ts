@@ -1,5 +1,5 @@
 import { InputType, Field, Int, Float, registerEnumType } from 'type-graphql'
-
+import { Genre } from './GAMES'
 /* ------------------- user options for generating queries ------------------ */
 
 export enum GroupByColumn {
@@ -90,15 +90,15 @@ export class WhereOptions {
   @Field(() => [String], { nullable: true })
   titleContains?: string[]
   @Field(() => [String], { nullable: true })
-  console?: string[]
+  console?: string[] // enums
   @Field(() => [Int], { nullable: true })
   year_of_release?: [number] | [number, number]
   @Field(() => [String], { nullable: true })
   publisher?: string[]
+  @Field(() => [Genre], { nullable: true })
+  genre?: Genre[] // enums
   @Field(() => [String], { nullable: true })
-  genre?: string[]
-  @Field(() => [String], { nullable: true })
-  rating?: string[]
+  rating?: string[] // enums
   @Field(() => [Int], { nullable: true })
   critic_score?: [number, number]
   @Field(() => [Int], { nullable: true })

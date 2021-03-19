@@ -191,10 +191,21 @@ const withQueryOptions = (query: QueryType) => (options: QueryOptions) => {
         return prev.where(column, searchConditions[0])
       }
     }
+
+    // use whereIn for columns with enums
+    const hasEnums = column === 'rating' || column === 'genre'
+    if (hasEnums && range) {
+      return prev.whereIn(column, searchConditions)
+    }
+    if (hasEnums) {
+      return prev.where(column, searchConditions[0])
+    }
+
     // convert 'titleContains' type queries to 'title'
     // and keep column name for other types
     const columnName = column.includes('title') ? 'title' : column
     const formattedTextSearch = formatTextSearch(column, searchConditions)
+
     if (range) {
       const sqlText = getLengthOfIlikeArgs(formattedTextSearch.length)
       return prev.whereRaw(sqlText, [columnName, ...formattedTextSearch])

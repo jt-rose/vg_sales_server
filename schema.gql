@@ -59,7 +59,7 @@ type GAMES {
   critic_score: Int
   developer: String
   eu_sales: Float!
-  genre: String!
+  genre: genre!
   global_sales: Float!
   id: Int!
   jp_sales: Float!
@@ -204,7 +204,7 @@ input WhereOptions {
   critic_score: [Int!]
   developer: [String!]
   eu_sales: [Float!]
-  genre: [String!]
+  genre: [genre!]
   global_sales: [Float!]
   jp_sales: [Float!]
   na_sales: [Float!]
@@ -230,4 +230,20 @@ type YearSales {
   publisher: String
   rating: String
   year_of_release: Int!
+}
+
+"""select games by different genres"""
+enum genre {
+  ACTION
+  ADVENTURE
+  FIGHTING
+  MISC
+  PLATFORM
+  PUZZLE
+  RACING
+  ROLEPLAYING
+  SHOOTER
+  SIMULATION
+  SPORTS
+  STRATEGY
 }

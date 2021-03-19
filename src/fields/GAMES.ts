@@ -1,7 +1,7 @@
-import { Field, Int, ObjectType } from 'type-graphql'
+import { Field, Int, ObjectType, registerEnumType } from 'type-graphql'
 
 type Ratings = 'AO' | 'E' | 'E10+' | 'EC' | 'K-A' | 'M' | 'RP' | 'T'
-
+/*
 type Genre =
   | 'Action'
   | 'Adventure'
@@ -15,6 +15,26 @@ type Genre =
   | 'Simulation'
   | 'Sports'
   | 'Strategy'
+*/
+export enum Genre {
+  ACTION = 'Action',
+  ADVENTURE = 'Adventure',
+  FIGHTING = 'Fighting',
+  MISC = 'Misc',
+  PLATFORM = 'Platform',
+  PUZZLE = 'Puzzle',
+  RACING = 'Racing',
+  ROLEPLAYING = 'Role-Playing',
+  SHOOTER = 'Shooter',
+  SIMULATION = 'Simulation',
+  SPORTS = 'Sports',
+  STRATEGY = 'Strategy',
+}
+
+registerEnumType(Genre, {
+  name: 'genre',
+  description: 'select games by different genres',
+})
 
 @ObjectType()
 export class GAMES {
@@ -30,7 +50,7 @@ export class GAMES {
   @Field(() => Int)
   year_of_release!: number
 
-  @Field(() => String) // issue with registerEnums, check later
+  @Field(() => Genre)
   genre!: Genre
 
   @Field()
