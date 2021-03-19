@@ -87,8 +87,26 @@ type GenreSales {
 }
 
 input OrderByColumn {
-  column: String!
-  order: String!
+  column: OrderByColumns!
+  order: SortOrder!
+}
+
+"""select columns to order results by"""
+enum OrderByColumns {
+  CONSOLE
+  CRITIC_SCORE
+  DEVELOPER
+  EU_SALES
+  GENRE
+  GLOBAL_SALES
+  JP_SALES
+  NA_SALES
+  OTHER_SALES
+  PUBLISHER
+  RATING
+  TITLE
+  USER_SCORE
+  YEAR_OF_RELEASE
 }
 
 type PaginatedConsoleGameSales {
@@ -173,6 +191,12 @@ type RatingSales {
   publisher: String
   rating: String
   year_of_release: Int
+}
+
+"""select whether column should be sorted as ascending or descending"""
+enum SortOrder {
+  ASC
+  DESC
 }
 
 input WhereOptions {

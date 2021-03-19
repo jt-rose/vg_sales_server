@@ -4,11 +4,26 @@ import {
   GroupByColumn,
   GroupAndOrderSettings,
   OrderByColumn,
+  SortOrder,
+  OrderByColumnName,
 } from './../fields/QUERY_OPTIONS'
 import dotenv from 'dotenv'
 import Knex from 'knex'
 
 dotenv.config()
+
+/* ---------------------------- destructure enums --------------------------- */
+
+const {
+  GENRE,
+  RATING,
+  CONSOLE,
+  TITLE,
+  PUBLISHER,
+  YEAR_OF_RELEASE,
+} = GroupByColumn
+const { CRITIC_SCORE, USER_SCORE, GLOBAL_SALES } = OrderByColumnName
+const { DESC } = SortOrder
 
 /* --------------------------- connect to database -------------------------- */
 
@@ -56,8 +71,8 @@ const querySalesBy = (groupByColumn: GroupByColumn) => (
   // set up list of columns to group and order by
   const groupByColumns = groupBy ? [...groupBy, groupByColumn] : [groupByColumn]
   const orderByColumns = formatOrderByArgs({
-    column: 'global_sales',
-    order: 'desc',
+    column: GLOBAL_SALES,
+    order: DESC,
   })(orderBy)
 
   // return customized query focusing on game sales
@@ -74,13 +89,14 @@ const querySalesBy = (groupByColumn: GroupByColumn) => (
     .orderBy(orderByColumns)
 }
 
+type ScoreType = OrderByColumnName.CRITIC_SCORE | OrderByColumnName.USER_SCORE
 // query to return games ordered by score
-const queryByScore = (scoreType: 'critic_score' | 'user_score') => (
+const queryByScore = (scoreType: ScoreType) => (
   options: GroupAndOrderSettings
 ) => {
   const orderByColumns = formatOrderByArgs({
     column: scoreType,
-    order: 'desc',
+    order: DESC,
   })(options.orderBy)
   // note: may allow for score type ordering to be specified exactly
   // rather than defaulting to last place
@@ -91,8 +107,8 @@ const queryByScore = (scoreType: 'critic_score' | 'user_score') => (
 // counting different console releases of same titles as unique items
 const queryEachTitleVersionBy = (options: GroupAndOrderSettings) => {
   const orderByColumns = formatOrderByArgs({
-    column: 'global_sales',
-    order: 'desc',
+    column: GLOBAL_SALES,
+    order: DESC,
   })(options.orderBy)
   return knex('games').select().orderBy(orderByColumns)
 }
@@ -213,31 +229,23 @@ const withPaginatedQueryOptions = (query: QueryType) => async (
 }
 
 /* ---------------- export formatted queries with pagination ---------------- */
-export const genreQuery = withPaginatedQueryOptions(
-  querySalesBy(/*'genre'*/ GroupByColumn.GENRE)
-)
-export const ratingQuery = withPaginatedQueryOptions(
-  querySalesBy(/*'rating'*/ GroupByColumn.RATING)
-)
-export const consoleQuery = withPaginatedQueryOptions(
-  querySalesBy(/*'console'*/ GroupByColumn.CONSOLE)
-)
+
+export const genreQuery = withPaginatedQueryOptions(querySalesBy(GENRE))
+export const ratingQuery = withPaginatedQueryOptions(querySalesBy(RATING))
+export const consoleQuery = withPaginatedQueryOptions(querySalesBy(CONSOLE))
 export const crossPlatformTitleQuery = withPaginatedQueryOptions(
-  querySalesBy(/*'title'*/ GroupByColumn.TITLE)
+  querySalesBy(TITLE)
 )
-export const PublisherQuery = withPaginatedQueryOptions(
-  querySalesBy(/*'publisher'*/ GroupByColumn.PUBLISHER)
-)
+export const PublisherQuery = withPaginatedQueryOptions(querySalesBy(PUBLISHER))
 
 export const yearOfReleaseQuery = withPaginatedQueryOptions(
-  querySalesBy(/*'year_of_release'*/ GroupByColumn.YEAR_OF_RELEASE)
+  querySalesBy(YEAR_OF_RELEASE)
 )
-
 export const criticScoreQuery = withPaginatedQueryOptions(
-  queryByScore('critic_score')
+  queryByScore(CRITIC_SCORE)
 )
 export const userScoreQuery = withPaginatedQueryOptions(
-  queryByScore('user_score')
+  queryByScore(USER_SCORE)
 )
 export const eachTitleVersionQuery = withPaginatedQueryOptions(
   queryEachTitleVersionBy
