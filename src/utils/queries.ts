@@ -191,7 +191,7 @@ const withQueryOptions = (query: QueryType) => (options: QueryOptions) => {
     }
 
     // use whereIn for columns with enums
-    const hasEnums = column === 'rating' || column === 'genre'
+    const hasEnums = ['genre', 'rating', 'console'].includes(column)
     if (hasEnums && range) {
       return prev.whereIn(column, searchConditions)
     }

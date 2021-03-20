@@ -1,5 +1,7 @@
 import { registerEnumType } from 'type-graphql'
 
+/* ------------------------------- genre enum ------------------------------- */
+
 export enum Genre {
   ACTION = 'Action',
   ADVENTURE = 'Adventure',
@@ -20,6 +22,49 @@ registerEnumType(Genre, {
   description: 'select games by different genres',
 })
 
+/* ------------------------------ console enum ------------------------------ */
+
+export enum Console {
+  _2600 = '2600',
+  _3DO = '3DO',
+  _3DS = '3DS',
+  DC = 'DC',
+  DS = 'DS',
+  GB = 'GB',
+  GBA = 'GBA',
+  GC = 'GC',
+  GEN = 'GEN',
+  GG = 'GG',
+  N64 = 'N64',
+  NES = 'NES',
+  NG = 'NG',
+  PC = 'PC',
+  PCFX = 'PCFX',
+  PS = 'PS',
+  PS2 = 'PS2',
+  PS3 = 'PS3',
+  PS4 = 'PS4',
+  PSP = 'PSP',
+  PSV = 'PSV',
+  SAT = 'SAT',
+  SCD = 'SCD',
+  SNES = 'SNES',
+  TG16 = 'TG16',
+  WII = 'Wii',
+  WIIU = 'WiiU',
+  WS = 'WS',
+  X360 = 'X360',
+  XB = 'XB',
+  XONE = 'XOne',
+}
+
+registerEnumType(Console, {
+  name: 'console',
+  description: 'select games by different consoles',
+})
+
+/* ------------------------------- rating enum ------------------------------ */
+
 export enum Rating {
   AO = 'AO',
   E = 'E',
@@ -36,6 +81,8 @@ registerEnumType(Rating, {
   description: 'select games by different ratings',
 })
 
+/* ------------------------------ groupBy enum ------------------------------ */
+
 export enum GroupByColumn {
   GENRE = 'genre',
   RATING = 'rating',
@@ -49,6 +96,8 @@ registerEnumType(GroupByColumn, {
   name: 'Column',
   description: 'The columns that can be used to group the search by',
 })
+
+/* ------------------------ orderBy column name enum ------------------------ */
 
 export enum OrderByColumnName {
   TITLE = 'title',
@@ -71,6 +120,8 @@ registerEnumType(OrderByColumnName, {
   name: 'OrderByColumns',
   description: 'select columns to order results by',
 })
+
+/* ---------------------- order by sort direction enum ---------------------- */
 
 export enum SortOrder {
   ASC = 'asc',

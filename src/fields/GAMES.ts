@@ -1,5 +1,5 @@
 import { Field, Int, ObjectType } from 'type-graphql'
-import { Genre, Rating } from './ENUMS'
+import { Genre, Rating, Console } from './ENUMS'
 
 @ObjectType()
 export class GAMES {
@@ -9,8 +9,8 @@ export class GAMES {
   @Field()
   title!: string
 
-  @Field()
-  console!: string
+  @Field(() => Console)
+  console!: Console
 
   @Field(() => Int)
   year_of_release!: number

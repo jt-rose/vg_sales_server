@@ -1,6 +1,7 @@
 import { InputType, Field, Int, Float } from 'type-graphql'
 import {
   Genre,
+  Console,
   Rating,
   GroupByColumn,
   OrderByColumnName,
@@ -36,8 +37,8 @@ export class WhereOptions {
   titleEndsWith?: string[]
   @Field(() => [String], { nullable: true })
   titleContains?: string[]
-  @Field(() => [String], { nullable: true })
-  console?: string[] // enums
+  @Field(() => [Console], { nullable: true })
+  console?: Console[] // enums
   @Field(() => [Int], { nullable: true })
   year_of_release?: [number] | [number, number]
   @Field(() => [String], { nullable: true })
