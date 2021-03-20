@@ -1,12 +1,10 @@
 import {
   PaginatedQueryOptions,
   QueryOptions,
-  GroupByColumn,
   GroupAndOrderSettings,
   OrderByColumn,
-  SortOrder,
-  OrderByColumnName,
 } from './../fields/QUERY_OPTIONS'
+import { GroupByColumn, OrderByColumnName, SortOrder } from './../fields/ENUMS'
 import dotenv from 'dotenv'
 import Knex from 'knex'
 

@@ -1,7 +1,5 @@
 import { Field, Int, ObjectType } from 'type-graphql'
-import { Genre } from './ENUMS'
-
-type Ratings = 'AO' | 'E' | 'E10+' | 'EC' | 'K-A' | 'M' | 'RP' | 'T'
+import { Genre, Rating } from './ENUMS'
 
 @ObjectType()
 export class GAMES {
@@ -54,6 +52,6 @@ export class GAMES {
   @Field({ nullable: true })
   developer: string
 
-  @Field(() => String, { nullable: true })
-  rating: Ratings
+  @Field(() => Rating, { nullable: true })
+  rating: Rating
 }

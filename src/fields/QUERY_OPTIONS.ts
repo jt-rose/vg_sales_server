@@ -1,53 +1,12 @@
-import { InputType, Field, Int, Float, registerEnumType } from 'type-graphql'
-import { Genre } from './ENUMS'
+import { InputType, Field, Int, Float } from 'type-graphql'
+import {
+  Genre,
+  Rating,
+  GroupByColumn,
+  OrderByColumnName,
+  SortOrder,
+} from './ENUMS'
 /* ------------------- user options for generating queries ------------------ */
-
-export enum GroupByColumn {
-  GENRE = 'genre',
-  RATING = 'rating',
-  CONSOLE = 'console',
-  TITLE = 'title',
-  PUBLISHER = 'publisher',
-  YEAR_OF_RELEASE = 'year_of_release',
-}
-
-registerEnumType(GroupByColumn, {
-  name: 'Column',
-  description: 'The columns that can be used to group the search by',
-})
-
-export enum OrderByColumnName {
-  TITLE = 'title',
-  CONSOLE = 'console',
-  YEAR_OF_RELEASE = 'year_of_release',
-  PUBLISHER = 'publisher',
-  GENRE = 'genre',
-  RATING = 'rating',
-  CRITIC_SCORE = 'critic_score',
-  USER_SCORE = 'user_score',
-  DEVELOPER = 'developer',
-  GLOBAL_SALES = 'global_sales',
-  NA_SALES = 'na_sales',
-  EU_SALES = 'eu_sales',
-  JP_SALES = 'jp_sales',
-  OTHER_SALES = 'other_sales',
-}
-
-registerEnumType(OrderByColumnName, {
-  name: 'OrderByColumns',
-  description: 'select columns to order results by',
-})
-
-export enum SortOrder {
-  ASC = 'asc',
-  DESC = 'desc',
-}
-
-registerEnumType(SortOrder, {
-  name: 'SortOrder',
-  description:
-    'select whether column should be sorted as ascending or descending',
-})
 
 @InputType()
 export class OrderByColumn {
@@ -56,18 +15,6 @@ export class OrderByColumn {
   @Field(() => SortOrder)
   order: SortOrder
 }
-
-/*
-@InputType()
-export class OrderByColumn {
-  @Field(() => String)
-  column: keyof Omit<
-    WhereOptions,
-    'titleStartsWith' | 'titleEndsWith' | 'titleContains'
-  >
-  @Field(() => String)
-  order: 'asc' | 'desc'
-}*/
 
 export class GroupAndOrderSettings {
   groupBy?: GroupByColumn[]
@@ -96,9 +43,9 @@ export class WhereOptions {
   @Field(() => [String], { nullable: true })
   publisher?: string[]
   @Field(() => [Genre], { nullable: true })
-  genre?: Genre[] // enums
-  @Field(() => [String], { nullable: true })
-  rating?: string[] // enums
+  genre?: Genre[]
+  @Field(() => [Rating], { nullable: true })
+  rating?: Rating[]
   @Field(() => [Int], { nullable: true })
   critic_score?: [number, number]
   @Field(() => [Int], { nullable: true })
@@ -116,8 +63,6 @@ export class WhereOptions {
   @Field(() => [Float], { nullable: true })
   other_sales?: [number, number]
 }
-
-//
 
 @InputType()
 export class QueryOptions {
