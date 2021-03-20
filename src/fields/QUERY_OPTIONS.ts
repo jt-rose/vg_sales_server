@@ -1,5 +1,5 @@
 import { InputType, Field, Int, Float, registerEnumType } from 'type-graphql'
-import { Genre } from './GAMES'
+import { Genre } from './ENUMS'
 /* ------------------- user options for generating queries ------------------ */
 
 export enum GroupByColumn {
