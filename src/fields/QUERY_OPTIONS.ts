@@ -1,4 +1,4 @@
-import { InputType, Field, Int, Float } from 'type-graphql'
+import { ObjectType, InputType, Field, Int, Float } from 'type-graphql'
 import {
   Genre,
   Console,
@@ -9,7 +9,8 @@ import {
 } from './ENUMS'
 /* ------------------- user options for generating queries ------------------ */
 
-@InputType()
+@ObjectType()
+@InputType('OrderByColumnInput')
 export class OrderByColumn {
   @Field(() => OrderByColumnName)
   column: OrderByColumnName

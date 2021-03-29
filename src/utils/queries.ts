@@ -51,6 +51,14 @@ const formatOrderByArgs = (defaultOrderBy: OrderByColumn) => (
   }
 }
 
+const formatGroupByArgs = (initialGroupBy?: GroupByColumn) => (
+  additionalGroupBy?: GroupByColumn[]
+) => {
+  const initial = initialGroupBy ? [initialGroupBy] : []
+  const additional = additionalGroupBy ? additionalGroupBy : []
+  return [...initial, ...additional]
+}
+
 //  query to investigate game sales
 // the first group by setting is curried
 // to allow some basic templates be provided to the user
@@ -67,7 +75,7 @@ const querySalesBy = (groupByColumn: GroupByColumn) => (
 ) => {
   const { groupBy, orderBy } = options
   // set up list of columns to group and order by
-  const groupByColumns = groupBy ? [...groupBy, groupByColumn] : [groupByColumn]
+  const groupByColumns = formatGroupByArgs(groupByColumn)(groupBy)
   const orderByColumns = formatOrderByArgs({
     column: GLOBAL_SALES,
     order: DESC,
@@ -215,9 +223,10 @@ const withQueryOptions = (query: QueryType) => (options: QueryOptions) => {
 
 /* ------------- apply pagination to queries with where options ------------- */
 
-const withPaginatedQueryOptions = (query: QueryType) => async (
-  options: PaginatedQueryOptions
-) => {
+const withPaginatedQueryOptions = (
+  query: QueryType,
+  initialGroupBy?: GroupByColumn
+) => async (options: PaginatedQueryOptions) => {
   const { where, groupBy, orderBy, limit, offset } = options
   // get real limit from user-submitted limit
   const realLimit = Math.min(50, limit)
@@ -227,28 +236,53 @@ const withPaginatedQueryOptions = (query: QueryType) => async (
     .limit(realLimit + 1)
     .offset(offset)
 
+  // format group by fields used
+  const groupedBy = formatGroupByArgs(initialGroupBy)(groupBy)
+
   // determine if additional items are left to query
   const hasMore = res.length === realLimit + 1
 
+  // return expected amount of rows
+  const rows = res
+    .slice(0, realLimit)
+    // and capture unique identifiers of group by combination
+    .map((row) => ({
+      ...row,
+      grouping: groupedBy.map((groupByColumn) => row[groupByColumn]),
+    }))
+
   // return paginated query object
   return {
-    rows: res.slice(0, realLimit),
+    rows,
+    groupedBy,
+    orderedBy: orderBy,
     hasMore,
   }
 }
 
 /* ---------------- export formatted queries with pagination ---------------- */
 
-export const genreQuery = withPaginatedQueryOptions(querySalesBy(GENRE))
-export const ratingQuery = withPaginatedQueryOptions(querySalesBy(RATING))
-export const consoleQuery = withPaginatedQueryOptions(querySalesBy(CONSOLE))
-export const crossPlatformTitleQuery = withPaginatedQueryOptions(
-  querySalesBy(TITLE)
+export const genreQuery = withPaginatedQueryOptions(querySalesBy(GENRE), GENRE)
+export const ratingQuery = withPaginatedQueryOptions(
+  querySalesBy(RATING),
+  RATING
 )
-export const PublisherQuery = withPaginatedQueryOptions(querySalesBy(PUBLISHER))
+export const consoleQuery = withPaginatedQueryOptions(
+  querySalesBy(CONSOLE),
+  CONSOLE
+)
+export const crossPlatformTitleQuery = withPaginatedQueryOptions(
+  querySalesBy(TITLE),
+  TITLE
+)
+export const PublisherQuery = withPaginatedQueryOptions(
+  querySalesBy(PUBLISHER),
+  PUBLISHER
+)
 
 export const yearOfReleaseQuery = withPaginatedQueryOptions(
-  querySalesBy(YEAR_OF_RELEASE)
+  querySalesBy(YEAR_OF_RELEASE),
+  YEAR_OF_RELEASE
 )
 export const criticScoreQuery = withPaginatedQueryOptions(
   queryByScore(CRITIC_SCORE)

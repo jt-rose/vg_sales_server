@@ -8,6 +8,7 @@ import {
   PaginatedGenreSales,
   PaginatedConsoleGameSales,
   PaginatedRatingSales,
+  PaginatedGamesWithGroupBy,
 } from '../fields/RESPONSE'
 import {
   consoleQuery,
@@ -46,7 +47,7 @@ export class Games {
     return crossPlatformTitleQuery(options)
   }
 
-  @Query(() => PaginatedGenreSales)
+  @Query(() => PaginatedGamesWithGroupBy) //PaginatedGenreSales)
   async salesByGenre(
     @Arg('options', () => PaginatedQueryOptions) options: PaginatedQueryOptions
   ) {
