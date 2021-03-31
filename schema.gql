@@ -149,6 +149,12 @@ input PaginatedQueryOptions {
   groupBy: [Column!]
   limit: Int!
   offset: Int!
+
+  """
+  if query uses group by columns, 
+        then order by columns must be present 
+        amongst group by options
+  """
   orderBy: [OrderByColumnInput!]
   where: WhereOptions!
 }

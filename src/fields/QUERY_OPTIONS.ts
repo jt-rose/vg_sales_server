@@ -71,10 +71,14 @@ export class QueryOptions {
   @Field(() => [GroupByColumn], { nullable: true })
   groupBy: GroupByColumn[]
 
-  @Field(() => [OrderByColumn], { nullable: true })
+  @Field(() => [OrderByColumn], {
+    nullable: true,
+    description: `if query uses group by columns, 
+      then order by columns must be present 
+      amongst group by options`,
+  })
   orderBy: OrderByColumn[]
   // validate orderBy
-  // add comment about requiring orderBy match groupby
 }
 
 @InputType()
