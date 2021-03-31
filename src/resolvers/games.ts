@@ -8,7 +8,6 @@ import {
   PaginatedGenreSales,
   PaginatedConsoleGameSales,
   PaginatedRatingSales,
-  PaginatedGamesWithGroupBy,
 } from '../fields/RESPONSE'
 import {
   consoleQuery,
@@ -21,7 +20,7 @@ import {
   ratingQuery,
   userScoreQuery,
   yearOfReleaseQuery,
-} from './../utils/queries'
+} from '../utils/paginate'
 
 @Resolver()
 export class Games {
@@ -32,7 +31,6 @@ export class Games {
     return gamesListQuery(options)
   }
 
-  // not combining sales of a single title across consoles/ PC - add later
   @Query(() => PaginatedGames)
   async salesByTitles(
     @Arg('options', () => PaginatedQueryOptions) options: PaginatedQueryOptions
@@ -47,7 +45,7 @@ export class Games {
     return crossPlatformTitleQuery(options)
   }
 
-  @Query(() => PaginatedGamesWithGroupBy) //PaginatedGenreSales)
+  @Query(() => PaginatedGenreSales)
   async salesByGenre(
     @Arg('options', () => PaginatedQueryOptions) options: PaginatedQueryOptions
   ) {
@@ -75,8 +73,6 @@ export class Games {
   ) {
     return consoleQuery(options)
   }
-
-  // Note: provide resolver to compare console sales to game sales
 
   @Query(() => PaginatedRatingSales)
   async salesByRating(

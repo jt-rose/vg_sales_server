@@ -7,7 +7,8 @@ import {
   OrderByColumnName,
   SortOrder,
 } from './ENUMS'
-/* ------------------- user options for generating queries ------------------ */
+
+/* -------------------- interface for order by arguments -------------------- */
 
 @ObjectType()
 @InputType('OrderByColumnInput')
@@ -16,11 +17,6 @@ export class OrderByColumn {
   column: OrderByColumnName
   @Field(() => SortOrder)
   order: SortOrder
-}
-
-export class GroupAndOrderSettings {
-  groupBy?: GroupByColumn[]
-  orderBy?: OrderByColumn[]
 }
 
 /* ------------------------ filter object for queries ----------------------- */
@@ -39,7 +35,7 @@ export class WhereOptions {
   @Field(() => [String], { nullable: true })
   titleContains?: string[]
   @Field(() => [Console], { nullable: true })
-  console?: Console[] // enums
+  console?: Console[]
   @Field(() => [Int], { nullable: true })
   year_of_release?: [number] | [number, number]
   @Field(() => [String], { nullable: true })
@@ -66,32 +62,23 @@ export class WhereOptions {
   other_sales?: [number, number]
 }
 
+/* -------------------- user inputs for designing queries ------------------- */
+
 @InputType()
 export class QueryOptions {
   @Field(() => WhereOptions)
-  where: WhereOptions // optional?
-  @Field(() => [GroupByColumn], { nullable: true }) // enums?
-  groupBy?: GroupByColumn[] //('year_of_release' | 'genre')[] // etc. // optional?
-  // validate groupBy if no enums?
+  where: WhereOptions
+  @Field(() => [GroupByColumn], { nullable: true })
+  groupBy: GroupByColumn[]
 
   @Field(() => [OrderByColumn], { nullable: true })
-  orderBy?: OrderByColumn[]
+  orderBy: OrderByColumn[]
   // validate orderBy
+  // add comment about requiring orderBy match groupby
 }
 
 @InputType()
 export class PaginatedQueryOptions extends QueryOptions {
-  @Field(() => Int)
-  limit: number
-  @Field(() => Int)
-  offset: number
-}
-
-//
-@InputType()
-export class PaginatedWhereOptions {
-  @Field(() => WhereOptions, { nullable: true })
-  where: WhereOptions
   @Field(() => Int)
   limit: number
   @Field(() => Int)

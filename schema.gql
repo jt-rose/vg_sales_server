@@ -76,10 +76,10 @@ type GamesWithGroupBy {
   year_of_release: Int!
 }
 
-type GroupByQueryResponse {
+type GenreSales {
   console: String
   eu_sales: Float!
-  genre: String
+  genre: String!
   global_sales: Float!
   grouping: [String!]!
   jp_sales: Float!
@@ -135,11 +135,9 @@ type PaginatedGames {
   rows: [GamesWithGroupBy!]!
 }
 
-type PaginatedGamesWithGroupBy {
-  groupedBy: [Column!]!
+type PaginatedGenreSales {
   hasMore: Boolean!
-  orderedBy: [OrderByColumn!]!
-  rows: [GroupByQueryResponse!]!
+  rows: [GenreSales!]!
 }
 
 type PaginatedPublisherSales {
@@ -187,7 +185,7 @@ type Query {
   highestUserScores(options: PaginatedQueryOptions!): PaginatedGames!
   salesByConsole(options: PaginatedQueryOptions!): PaginatedConsoleGameSales!
   salesByCrossPlatformTitles(options: PaginatedQueryOptions!): PaginatedCrossPlatformSales!
-  salesByGenre(options: PaginatedQueryOptions!): PaginatedGamesWithGroupBy!
+  salesByGenre(options: PaginatedQueryOptions!): PaginatedGenreSales!
   salesByPublisher(options: PaginatedQueryOptions!): PaginatedPublisherSales!
   salesByRating(options: PaginatedQueryOptions!): PaginatedRatingSales!
   salesByTitles(options: PaginatedQueryOptions!): PaginatedGames!
