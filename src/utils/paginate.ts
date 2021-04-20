@@ -50,14 +50,39 @@ const formatGroupByArgs = (initialGroupBy?: GroupByColumn) => (
 
 /* ------------- apply pagination to queries with where options ------------- */
 
-// const x = (query, defsultGroupBy, defaultOrderBy) => (options) => {}
+// confirm order by arguments are matched by groupby arguments
+// enums are converted to strings for value comparison
+const orderAndGroupArgsAligned = (
+  groupBy: GroupByColumn[],
+  orderBy: OrderByColumn[]
+) => {
+  if (!groupBy.length || !orderBy.length) return true
+  const formattedOrderBy = orderBy
+    .filter((orderByInfo) => !orderByInfo.column.includes('sales'))
+    .map((orderByInfo) => `${orderByInfo.column}`)
+  const formattedGroupBy = groupBy.map((columnNameEnum) => `${columnNameEnum}`)
+  console.log('groupby: ', formattedGroupBy)
+  console.log('orderBY: ', formattedOrderBy)
+  return formattedOrderBy.every((col) => formattedGroupBy.includes(col))
+}
+
 const generatePaginatedQuery = (config: {
   /*searchBy: SearchByParam*/ query: QueryType
   initialGroupBy?: GroupByColumn
   initialOrderBy: OrderByColumn
 }) => async (options: PaginatedQueryOptions) => {
+  // format group by and order by args
   const groupedBy = formatGroupByArgs(config.initialGroupBy)(options.groupBy)
   const orderedBy = formatOrderByArgs(config.initialOrderBy)(options.orderBy)
+
+  // throw error if order by arguments not matching group by arguments
+  // when group by arguments provided
+  if (!orderAndGroupArgsAligned(groupedBy, orderedBy)) {
+    throw new Error(
+      ' when using group by arguments and order by arguments together, the values used in order by must be present in group by'
+    )
+  }
+
   // get real limit from user-submitted limit
   const realLimit = Math.min(50, options.limit)
   const realLimitPlusOne = realLimit + 1
