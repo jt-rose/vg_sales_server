@@ -61,8 +61,6 @@ const orderAndGroupArgsAligned = (
     .filter((orderByInfo) => !orderByInfo.column.includes('sales'))
     .map((orderByInfo) => `${orderByInfo.column}`)
   const formattedGroupBy = groupBy.map((columnNameEnum) => `${columnNameEnum}`)
-  console.log('groupby: ', formattedGroupBy)
-  console.log('orderBY: ', formattedOrderBy)
   return formattedOrderBy.every((col) => formattedGroupBy.includes(col))
 }
 
