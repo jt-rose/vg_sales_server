@@ -119,12 +119,16 @@ enum OrderByColumns {
 }
 
 type PaginatedConsoleGameSales {
+  groupedBy: [Column!]!
   hasMore: Boolean!
+  orderedBy: [OrderByColumn!]!
   rows: [ConsoleGameSales!]!
 }
 
 type PaginatedCrossPlatformSales {
+  groupedBy: [Column!]!
   hasMore: Boolean!
+  orderedBy: [OrderByColumn!]!
   rows: [CrossPlatformSales!]!
 }
 
@@ -136,12 +140,16 @@ type PaginatedGames {
 }
 
 type PaginatedGenreSales {
+  groupedBy: [Column!]!
   hasMore: Boolean!
+  orderedBy: [OrderByColumn!]!
   rows: [GenreSales!]!
 }
 
 type PaginatedPublisherSales {
+  groupedBy: [Column!]!
   hasMore: Boolean!
+  orderedBy: [OrderByColumn!]!
   rows: [PublisherSales!]!
 }
 
@@ -160,12 +168,16 @@ input PaginatedQueryOptions {
 }
 
 type PaginatedRatingSales {
+  groupedBy: [Column!]!
   hasMore: Boolean!
+  orderedBy: [OrderByColumn!]!
   rows: [RatingSales!]!
 }
 
 type PaginatedYearSales {
+  groupedBy: [Column!]!
   hasMore: Boolean!
+  orderedBy: [OrderByColumn!]!
   rows: [YearSales!]!
 }
 

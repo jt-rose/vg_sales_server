@@ -21,8 +21,6 @@ export class PaginatedGames {
   hasMore!: boolean
 }
 
-/* ------------------- paginated response without grouping ------------------ */
-
 /* ------------------- paginated response grouped by sales ------------------ */
 
 @ObjectType()
@@ -76,11 +74,9 @@ export class GenreSales extends GroupByQueryResponse {
 }
 
 @ObjectType()
-export class PaginatedGenreSales {
+export class PaginatedGenreSales extends PaginatedGamesWithGroupBy {
   @Field(() => [GenreSales])
   rows!: GenreSales[]
-  @Field()
-  hasMore!: boolean
 }
 
 @ObjectType()
@@ -90,11 +86,9 @@ export class ConsoleGameSales extends GroupByQueryResponse {
 }
 
 @ObjectType()
-export class PaginatedConsoleGameSales {
+export class PaginatedConsoleGameSales extends PaginatedGamesWithGroupBy {
   @Field(() => [ConsoleGameSales])
   rows!: ConsoleGameSales[]
-  @Field()
-  hasMore!: boolean
 }
 
 @ObjectType()
@@ -104,11 +98,9 @@ export class RatingSales extends GroupByQueryResponse {
 }
 
 @ObjectType()
-export class PaginatedRatingSales {
+export class PaginatedRatingSales extends PaginatedGamesWithGroupBy {
   @Field(() => [RatingSales])
   rows!: RatingSales[]
-  @Field()
-  hasMore!: boolean
 }
 
 @ObjectType()
@@ -118,11 +110,9 @@ class CrossPlatformSales extends GroupByQueryResponse {
 }
 
 @ObjectType()
-export class PaginatedCrossPlatformSales {
+export class PaginatedCrossPlatformSales extends PaginatedGamesWithGroupBy {
   @Field(() => [CrossPlatformSales])
   rows!: CrossPlatformSales[]
-  @Field()
-  hasMore!: boolean
 }
 
 @ObjectType()
@@ -132,11 +122,9 @@ class YearSales extends GroupByQueryResponse {
 }
 
 @ObjectType()
-export class PaginatedYearSales {
+export class PaginatedYearSales extends PaginatedGamesWithGroupBy {
   @Field(() => [YearSales])
   rows!: YearSales[]
-  @Field()
-  hasMore!: boolean
 }
 
 @ObjectType()
@@ -146,9 +134,7 @@ class PublisherSales extends GroupByQueryResponse {
 }
 
 @ObjectType()
-export class PaginatedPublisherSales {
+export class PaginatedPublisherSales extends PaginatedGamesWithGroupBy {
   @Field(() => [PublisherSales])
   rows!: PublisherSales[]
-  @Field()
-  hasMore!: boolean
 }
