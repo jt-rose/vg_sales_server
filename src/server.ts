@@ -10,6 +10,8 @@ import {
   fieldExtensionsEstimator,
   simpleEstimator,
 } from 'graphql-query-complexity'
+import { redis } from './utils/redis'
+import { MyContext } from './utils/types'
 
 const main = async () => {
   const app = express()
@@ -21,6 +23,11 @@ const main = async () => {
   })
   const apolloServer = new ApolloServer({
     schema,
+    context: ({ req, res }): MyContext => ({
+      req,
+      res,
+      redis,
+    }),
     // plugins: [apolloLogger],
     plugins: [
       {

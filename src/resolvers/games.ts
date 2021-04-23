@@ -1,4 +1,4 @@
-import { Resolver, Query, Arg } from 'type-graphql'
+import { Resolver, Query, Arg, UseMiddleware } from 'type-graphql'
 import { PaginatedQueryOptions } from '../fields/QUERY_OPTIONS'
 import {
   PaginatedGames,
@@ -21,10 +21,12 @@ import {
   userScoreQuery,
   yearOfReleaseQuery,
 } from '../utils/paginate'
+import { rateLimit } from '../utils/rateLimit'
 
 @Resolver()
 export class Games {
   @Query(() => PaginatedGames)
+  @UseMiddleware(rateLimit())
   async games(
     @Arg('options', () => PaginatedQueryOptions) options: PaginatedQueryOptions
   ) {
@@ -32,6 +34,7 @@ export class Games {
   }
 
   @Query(() => PaginatedGames)
+  @UseMiddleware(rateLimit())
   async salesByTitles(
     @Arg('options', () => PaginatedQueryOptions) options: PaginatedQueryOptions
   ) {
@@ -39,6 +42,7 @@ export class Games {
   }
 
   @Query(() => PaginatedCrossPlatformSales)
+  @UseMiddleware(rateLimit())
   async salesByCrossPlatformTitles(
     @Arg('options', () => PaginatedQueryOptions) options: PaginatedQueryOptions
   ) {
@@ -46,6 +50,7 @@ export class Games {
   }
 
   @Query(() => PaginatedGenreSales)
+  @UseMiddleware(rateLimit())
   async salesByGenre(
     @Arg('options', () => PaginatedQueryOptions) options: PaginatedQueryOptions
   ) {
@@ -53,6 +58,7 @@ export class Games {
   }
 
   @Query(() => PaginatedYearSales)
+  @UseMiddleware(rateLimit())
   async salesByYear(
     @Arg('options', () => PaginatedQueryOptions) options: PaginatedQueryOptions
   ) {
@@ -60,6 +66,7 @@ export class Games {
   }
 
   @Query(() => PaginatedPublisherSales)
+  @UseMiddleware(rateLimit())
   async salesByPublisher(
     @Arg('options', () => PaginatedQueryOptions) options: PaginatedQueryOptions
   ) {
@@ -68,6 +75,7 @@ export class Games {
 
   // this is for games sold per console, not console sales themselves
   @Query(() => PaginatedConsoleGameSales)
+  @UseMiddleware(rateLimit())
   async salesByConsole(
     @Arg('options', () => PaginatedQueryOptions) options: PaginatedQueryOptions
   ) {
@@ -75,6 +83,7 @@ export class Games {
   }
 
   @Query(() => PaginatedRatingSales)
+  @UseMiddleware(rateLimit())
   async salesByRating(
     @Arg('options', () => PaginatedQueryOptions) options: PaginatedQueryOptions
   ) {
@@ -82,6 +91,7 @@ export class Games {
   }
 
   @Query(() => PaginatedGames)
+  @UseMiddleware(rateLimit())
   async highestCriticScores(
     @Arg('options', () => PaginatedQueryOptions) options: PaginatedQueryOptions
   ) {
@@ -89,6 +99,7 @@ export class Games {
   }
 
   @Query(() => PaginatedGames)
+  @UseMiddleware(rateLimit())
   async highestUserScores(
     @Arg('options', () => PaginatedQueryOptions) options: PaginatedQueryOptions
   ) {
