@@ -134,16 +134,17 @@ registerEnumType(SortOrder, {
     'select whether column should be sorted as ascending or descending',
 })
 
-/////////////////////
-///////////
-// return results row for stats outside of pagination
-// ie number of games, number by genre, number by year, etc.
-// results breakdown:
-// genre spread
-// console spread
-// year spread
-// maker spread
-// regional sales spread
-// publisher - big, big, big, other
-// developer
-// critic score/ user score - ranges
+/* ----------------------- define type of search text ----------------------- */
+
+export enum TextSearchType {
+  EQUALS = 'EQUALS',
+  CONTAINS = 'CONTAINS',
+  STARTSWITH = 'STARTSWITH',
+  ENDSWITH = 'ENDSWITH',
+}
+
+registerEnumType(TextSearchType, {
+  name: 'textSearchType',
+  description:
+    'distinguish between searching for exact text, text appearing at start, at end, or included anywhere',
+})

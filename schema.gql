@@ -230,6 +230,11 @@ enum SortOrder {
   DESC
 }
 
+input TextSearch {
+  searchText: [String!]!
+  searchType: textSearchType!
+}
+
 input WhereOptions {
   console: [console!]
   critic_score: [Int!]
@@ -242,10 +247,7 @@ input WhereOptions {
   other_sales: [Float!]
   publisher: [String!]
   rating: [rating!]
-  title: [String!]
-  titleContains: [String!]
-  titleEndsWith: [String!]
-  titleStartsWith: [String!]
+  title: TextSearch
   user_score: [Int!]
   year_of_release: [Int!]
 }
@@ -325,4 +327,14 @@ enum rating {
   M
   RP
   T
+}
+
+"""
+distinguish between searching for exact text, text appearing at start, at end, or included anywhere
+"""
+enum textSearchType {
+  CONTAINS
+  ENDSWITH
+  EQUALS
+  STARTSWITH
 }

@@ -1,4 +1,5 @@
-import { QueryOptions } from '../fields/QUERY_OPTIONS'
+import { QueryOptions, TextSearch } from '../fields/QUERY_OPTIONS'
+import { TextSearchType } from '../fields/ENUMS'
 import { QueryType } from './queries'
 
 /* ----------- utility functions to differentiate 'where' options ----------- */
@@ -17,16 +18,16 @@ const hasNumericSearchType = (whereColumn: string) =>
 
 const hasSearchRange = (whereData: string[] | number[]) => whereData.length > 1
 
-const formatTextSearch = (searchType: string, searchConditions: string[]) => {
-  switch (searchType) {
-    case 'titleStartsWith':
-      return searchConditions.map((text) => text + '%')
-    case 'titleEndsWith':
-      return searchConditions.map((text) => '%' + text)
-    case 'titleContains':
-      return searchConditions.map((text) => '%' + text + '%')
+const formatTextSearch = (textSearch: TextSearch) => {
+  switch (textSearch.searchType) {
+    case TextSearchType.STARTSWITH:
+      return textSearch.searchText.map((text) => text + '%')
+    case TextSearchType.ENDSWITH:
+      return textSearch.searchText.map((text) => '%' + text)
+    case TextSearchType.CONTAINS:
+      return textSearch.searchText.map((text) => '%' + text + '%')
     default:
-      return searchConditions
+      return textSearch.searchText
   }
 }
 
@@ -79,16 +80,18 @@ export const applyFilters = (query: QueryType) => (options: QueryOptions) => {
       return prev.where(column, searchConditions[0])
     }
 
-    // convert 'titleContains' type queries to 'title'
-    // and keep column name for other types
-    const columnName = column.includes('title') ? 'title' : column
-    const formattedTextSearch = formatTextSearch(column, searchConditions)
+    // format text search if searching for titles that contain, start with, etc.
+    const formattedTextSearch =
+      column === 'title' ? formatTextSearch(searchConditions) : searchConditions
 
-    if (range) {
+    if (
+      range ||
+      (column === 'title' && hasSearchRange(searchConditions.searchText))
+    ) {
       const sqlText = getLengthOfIlikeArgs(formattedTextSearch.length)
-      return prev.whereRaw(sqlText, [columnName, ...formattedTextSearch])
+      return prev.whereRaw(sqlText, [column, ...formattedTextSearch])
     } else {
-      return prev.where(columnName, 'ilike', formattedTextSearch[0])
+      return prev.where(column, 'ilike', formattedTextSearch[0])
     }
   }, newQuery)
 }

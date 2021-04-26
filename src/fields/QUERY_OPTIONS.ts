@@ -6,6 +6,7 @@ import {
   GroupByColumn,
   OrderByColumnName,
   SortOrder,
+  TextSearchType,
 } from './ENUMS'
 
 /* -------------------- interface for order by arguments -------------------- */
@@ -25,15 +26,17 @@ export class OrderByColumn {
 // to narrow down what is searched for based on user interests
 
 @InputType()
+export class TextSearch {
+  @Field(() => [String])
+  searchText: string[]
+  @Field(() => TextSearchType)
+  searchType: TextSearchType
+}
+
+@InputType()
 export class WhereOptions {
-  @Field(() => [String], { nullable: true })
-  title?: string[]
-  @Field(() => [String], { nullable: true })
-  titleStartsWith?: string[]
-  @Field(() => [String], { nullable: true })
-  titleEndsWith?: string[]
-  @Field(() => [String], { nullable: true })
-  titleContains?: string[]
+  @Field(() => TextSearch, { nullable: true })
+  title?: TextSearch
   @Field(() => [Console], { nullable: true })
   console?: Console[]
   @Field(() => [Int], { nullable: true })
@@ -78,7 +81,6 @@ export class QueryOptions {
       amongst group by options`,
   })
   orderBy: OrderByColumn[]
-  // validate orderBy
 }
 
 @InputType()
