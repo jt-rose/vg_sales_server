@@ -15,4 +15,4 @@ COPY consoles (
     maker,
     console_type
 )
-FROM 'C:\Users\jtr21\Desktop\WebDev\sites\vg_sales\server\src\sql\imports\consoles.csv' WITH (FORMAT CSV, HEADER);
+FROM '/Users/jeffreyrose/Desktop/WebDev/vg_sales_server/sql/imports/consoles.csv' WITH (FORMAT CSV, HEADER);

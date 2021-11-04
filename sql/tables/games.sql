@@ -60,5 +60,5 @@ COPY games (
     developer,
     rating
 )
-FROM 'C:\Users\jtr21\Desktop\WebDev\sites\vg_sales\server\sql\imports\games.csv' WITH (FORMAT CSV, HEADER);
+FROM '/Users/jeffreyrose/Desktop/WebDev/vg_sales_server/sql/imports/games.csv' WITH (FORMAT CSV, HEADER);
 CREATE INDEX title_idx ON games (title);
