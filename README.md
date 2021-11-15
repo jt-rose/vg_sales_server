@@ -17,7 +17,7 @@ https://www.kaggle.com/juttugarakesh/video-game-data
 This is meant as the backend / database for a frontend being developed at [VG Sales Client] , but can be 
 run on its own with the GraphQL playground by doing the following:
 
-1. Have Redis and Postgres installed locally or running on docker
+1. Have Node, Redis and Postgres installed locally or running on docker
 2. Use the included SQL commands and CSV files to generate the database
 3. Copy the code and run `npm install` or `yarn install`
 4. Run `npm run start` or `yarn start` to initialize the server
